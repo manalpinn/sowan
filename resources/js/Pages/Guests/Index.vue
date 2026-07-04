@@ -1,8 +1,10 @@
 <template>
   <AdminLayout
     page-title="Daftar Tamu"
-    :breadcrumbs="[{ label: 'Dashboard', href: route('dashboard') }, { label: 'Tamu' }]"
+    :breadcrumbs="dynamicBreadcrumbs"
   >
+    <EventTabs v-if="active_event" current="guests" :event-id="active_event.id" />
+
     <div class="card">
       <!-- Filter Bar -->
       <div class="filter-bar">
@@ -49,7 +51,7 @@
           >
             <ArrowPathIcon v-if="processingBulk" class="animate-spin h-4 w-4" />
             <PaperAirplaneIcon v-else class="w-4 h-4" />
-            WA ({{ selectedIds.length }})
+            Kirim ({{ selectedIds.length }})
           </button>
 
           <button
@@ -62,12 +64,13 @@
             Hapus ({{ selectedIds.length }})
           </button>
 
+
           <button @click="showImport = true" class="btn btn-secondary btn-sm">
             <ArrowUpTrayIcon class="w-4 h-4" />
             Import
           </button>
 
-          <Link :href="route('guests.create')" class="btn btn-primary btn-sm">
+          <Link :href="route('guests.create', { event_id: active_event?.id || '' })" class="btn btn-primary btn-sm">
             <PlusIcon class="w-4 h-4" stroke-width="2.5" />
             Tambah Tamu
           </Link>
@@ -87,7 +90,7 @@
               <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Kontak</th>
               <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Event</th>
               <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Kehadiran</th>
-              <th class="px-4 py-3 text-center text-xs font-bold text-muted uppercase tracking-wider">WhatsApp</th>
+              <th class="px-4 py-3 text-center text-xs font-bold text-muted uppercase tracking-wider">Status Undangan</th>
               <th class="px-4 py-3 text-center text-xs font-bold text-muted uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
@@ -136,18 +139,19 @@
               <td class="px-4 py-4 vertical-align-middle text-center">
                 <div class="flex flex-col items-center gap-1">
                   <button 
-                    v-if="guest.whatsapp_status !== 'delivered' && guest.whatsapp_status !== 'pending'"
+                    v-if="!guest.whatsapp_status || guest.whatsapp_status === 'pending'"
                     @click="sendWA(guest)" 
                     class="btn btn-sm btn-primary py-1 px-3 text-[10px] whitespace-nowrap" 
-                    :disabled="!guest.phone || processingIds.includes(guest.id)"
+                    :disabled="(!guest.phone && !guest.email) || processingIds.includes(guest.id)"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3 h-3 mr-1"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                    Kirim WA
+                    Kirim Undangan
                   </button>
-                  <div v-else-if="guest.whatsapp_status === 'pending'" class="badge badge-pending">
+                  <div v-else-if="guest.whatsapp_status === 'processing'" class="badge badge-sent">
                     Memproses...
                   </div>
-                  <div v-else-if="guest.whatsapp_status === 'delivered'" class="flex flex-col items-center">
+
+                  <div v-else-if="guest.whatsapp_status === 'sent'" class="flex flex-col items-center">
                     <span class="badge badge-success text-[10px]">Sudah Terkirim</span>
                     <span class="text-[9px] text-muted mt-0.5">{{ guest.wa_sent_at_formatted }}</span>
                   </div>
@@ -155,7 +159,7 @@
                     v-else-if="guest.whatsapp_status === 'failed'"
                     @click="sendWA(guest)" 
                     class="btn btn-sm btn-danger py-1 px-3 text-[10px] whitespace-nowrap" 
-                    :disabled="!guest.phone || processingIds.includes(guest.id)"
+                    :disabled="(!guest.phone && !guest.email) || processingIds.includes(guest.id)"
                   >
                     Gagal - Coba Lagi
                   </button>
@@ -187,15 +191,35 @@
               </td>
             </tr>
             <tr v-if="guests.data.length === 0">
-              <td colspan="8" class="empty-row">Tamu tidak ditemukan.</td>
+              <td colspan="8" class="px-8 py-24 text-center">
+                <div class="flex flex-col items-center">
+                  <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-300 mb-4">
+                    <UsersIcon class="w-8 h-8" />
+                  </div>
+                  <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Data Tamu Kosong</p>
+                  <p class="text-xs text-slate-400">Belum ada tamu yang ditambahkan ke event ini.</p>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="text-sm text-gray-500 font-medium">
-          Menampilkan <span class="font-bold text-gray-700">{{ guests.from || 0 }}</span> - <span class="font-bold text-gray-700">{{ guests.to || 0 }}</span> dari <span class="font-bold text-gray-700">{{ guests.total }}</span> tamu
+      <div class="px-6 py-4 bg-gray-50/50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-col sm:flex-row items-center gap-4 text-sm text-gray-500 dark:text-slate-400 font-medium">
+          <div>
+            Menampilkan <span class="font-bold text-gray-700 dark:text-slate-300">{{ guests.from || 0 }}</span> - <span class="font-bold text-gray-700 dark:text-slate-300">{{ guests.to || 0 }}</span> dari <span class="font-bold text-gray-700 dark:text-slate-300">{{ guests.total }}</span> tamu
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Tampilkan:</span>
+            <select v-model="perPage" @change="onPerPageChange" class="filter-input py-0.5 px-2 text-xs rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 cursor-pointer w-20">
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+              <option :value="250">250</option>
+            </select>
+          </div>
         </div>
         <Pagination :links="guests.links" />
       </div>
@@ -219,13 +243,7 @@
                 <p class="text-xs text-muted mt-2">Format file: <strong>.xlsx</strong> (maks. 5MB)</p>
               </div>
 
-              <div class="form-group mt-4">
-                <label class="form-label" v-if="events && events.length > 0">Event</label>
-                <select v-if="events && events.length > 0" v-model="importEventId" class="form-select w-full" required>
-                  <option value="">-- Pilih Event --</option>
-                  <option v-for="e in events" :key="e.id" :value="e.id">{{ e.name }}</option>
-                </select>
-              </div>
+              <!-- (Event ID will be automatically taken from active_event or filters) -->
 
               <div class="form-group mt-4">
                 <label class="form-label">File Import</label>
@@ -259,10 +277,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import EventTabs from '@/Components/EventTabs.vue';
 import { notify } from '@/Utils/SweetAlert';
 import { debounce } from 'lodash-es';
 
@@ -283,10 +302,28 @@ const props = defineProps({
   guests: Object,
   events: Array,
   filters: Object,
+  active_event: Object,
+});
+
+const dynamicBreadcrumbs = computed(() => {
+  if (props.active_event) {
+    return [
+      { label: 'Dashboard', href: route('dashboard') },
+      { label: 'Event', href: route('events.index') },
+      { label: props.active_event.name, href: route('events.show', props.active_event.id) },
+      { label: 'Daftar Tamu' }
+    ];
+  }
+  return [
+    { label: 'Dashboard', href: route('dashboard') },
+    { label: 'Tamu' }
+  ];
 });
 
 const search = ref(props.filters.search || '');
 const type = ref(props.filters.type || '');
+const eventId = ref(props.filters.event_id || '');
+const perPage = ref(props.filters.per_page || 10);
 const selectedIds = ref([]);
 const processingIds = ref([]);
 const processingBulk = ref(false);
@@ -316,11 +353,25 @@ const onFilterChange = debounce(() => {
   router.get(route('guests.index'), {
     search: search.value,
     type: type.value,
+    per_page: perPage.value,
+    event_id: eventId.value,
   }, {
     preserveState: true,
     replace: true,
   });
 }, 300);
+
+function onPerPageChange() {
+  router.get(route('guests.index'), {
+    search: search.value,
+    type: type.value,
+    per_page: perPage.value,
+    event_id: eventId.value,
+  }, {
+    preserveState: true,
+    replace: true,
+  });
+}
 
 async function deleteGuest(guest) {
   const result = await notify.confirm(
@@ -339,7 +390,7 @@ function showQr(guest) {
     title: guest.name,
     html: `
       <div class="flex flex-col items-center justify-center py-4">
-        <div class="bg-white p-4 rounded-3xl shadow-sm border-4 border-slate-100">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700">
           <img src="${route('guests.qr', guest.id)}" class="w-64 h-64 mx-auto" alt="QR Code" />
         </div>
         <p class="mt-6 text-sm text-slate-500 font-medium">Scan QR Code ini untuk check-in di lokasi acara.</p>
@@ -371,6 +422,30 @@ async function bulkSendWA() {
     processingBulk.value = true;
     router.post(route('guests.bulk-whatsapp'), {
       ids: selectedIds.value
+    }, {
+      onFinish: () => {
+        processingBulk.value = false;
+        selectedIds.value = [];
+      }
+    });
+  }
+}
+
+async function sendAllWA() {
+  const result = await notify.confirm(
+    'Kirim Semua WhatsApp?',
+    'Kirim undangan WhatsApp ke SEMUA tamu yang belum menerima undangan (sesuai filter aktif)?',
+    'Ya, Kirim Semua',
+    'info'
+  );
+  
+  if (result.isConfirmed) {
+    processingBulk.value = true;
+    router.post(route('guests.bulk-whatsapp'), {
+      ids: 'all',
+      search: search.value,
+      type: type.value,
+      event_id: eventId.value,
     }, {
       onFinish: () => {
         processingBulk.value = false;
@@ -425,7 +500,8 @@ function doImport() {
   importLoading.value = true;
   const formData = new FormData();
   formData.append('file', importFile.value);
-  formData.append('event_id', importEventId.value);
+  const targetEventId = props.active_event?.id || props.filters?.event_id || (props.events && props.events.length > 0 ? props.events[0].id : importEventId.value);
+  formData.append('event_id', targetEventId);
   
   router.post(route('guests.import'), formData, {
     onSuccess: () => {
@@ -442,6 +518,22 @@ function doImport() {
     }
   });
 }
+
+let pollInterval = null;
+
+onMounted(() => {
+  // Polling data secara diam-diam tiap 3 detik jika ada tamu berstatus "Memproses..."
+  pollInterval = setInterval(() => {
+    const hasProcessing = props.guests.data.some(g => g.whatsapp_status === 'processing');
+    if (hasProcessing) {
+      router.reload({ only: ['guests'], preserveState: true, preserveScroll: true });
+    }
+  }, 3000);
+});
+
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval);
+});
 </script>
 
 <style scoped>

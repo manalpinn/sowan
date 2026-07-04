@@ -42,8 +42,14 @@
           </div>
 
           <!-- Self Check-in Button -->
+          <div v-if="guest.is_event_inactive" class="text-center p-4 bg-danger-soft rounded-2xl mb-8">
+            <div class="flex items-center justify-center gap-2 text-danger font-bold">
+              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>{{ guest.is_event_expired ? 'Event telah berakhir, check-in tidak tersedia.' : 'Event belum dimulai, check-in belum tersedia.' }}</span>
+            </div>
+          </div>
           <button 
-            v-if="guest.checkin_status === 'not_arrived'"
+            v-else-if="guest.checkin_status === 'not_arrived'"
             @click="processSelfCheckin"
             class="btn btn-primary w-full py-4 rounded-2xl text-lg font-bold shadow-lg shadow-primary/30"
             :disabled="processing"
@@ -51,7 +57,7 @@
             {{ processing ? 'Memproses...' : 'Konfirmasi Kehadiran' }}
           </button>
 
-          <div v-else class="text-center p-4 bg-success-soft rounded-2xl">
+          <div v-else class="text-center p-4 bg-success-soft rounded-2xl mb-8">
             <div class="flex items-center justify-center gap-2 text-success font-bold">
               <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               <span>{{ guest.checkin_status === 'checkin' ? 'Anda Sudah Hadir' : 'Anda Sudah Pulang' }}</span>

@@ -23,6 +23,11 @@ class PublicController extends Controller
         }
 
         return Inertia::render('Public/Invitation', [
+            'meta' => [
+                'title' => 'Undangan: ' . $guest->event->name . ' - Untuk ' . $guest->name,
+                'description' => $guest->event->description ?? 'Anda diundang untuk menghadiri ' . $guest->event->name . '. Silakan buka tautan ini untuk informasi lebih lanjut dan konfirmasi kehadiran.',
+                'image' => $guest->event->banner ? asset('storage/' . $guest->event->banner) : asset('default-meta.jpg'),
+            ],
             'guest' => [
                 'id' => $guest->id,
                 'name' => $guest->name,
@@ -35,9 +40,14 @@ class PublicController extends Controller
                 'name' => $guest->event->name,
                 'description' => $guest->event->description,
                 'location' => $guest->event->location,
+                'google_maps_embed_url' => $guest->event->google_maps_embed_url,
                 'start_date' => $guest->event->start_date->format('l, d F Y'),
+                'time_formatted' => ($guest->event->start_time && $guest->event->end_time) 
+                    ? 'Pukul ' . \Carbon\Carbon::parse($guest->event->start_time)->format('H.i') . ' - ' . \Carbon\Carbon::parse($guest->event->end_time)->format('H.i') . ' WIB' 
+                    : null,
                 'welcome_message' => $guest->event->welcome_message,
                 'invitation_template' => $guest->event->invitation_template,
+                'theme_color' => $guest->event->theme_color,
                 'banner' => $guest->event->banner,
             ]
         ]);
@@ -50,7 +60,7 @@ class PublicController extends Controller
     {
         $request->validate([
             'status' => 'required|in:attending,declined',
-            'plus_one' => 'integer|min:0|max:10',
+            'plus_one' => 'integer|min:0|max:3',
         ]);
 
         $guest = Guest::where('qr_code', $qrCode)->firstOrFail();

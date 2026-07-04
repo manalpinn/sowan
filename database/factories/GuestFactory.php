@@ -22,7 +22,7 @@ class GuestFactory extends Factory
             'phone' => '62' . $this->faker->numerify('8##########'),
             'type' => $this->faker->randomElement(['VIP', 'Regular', 'VVIP', 'Vendor', 'Media']),
             'table_number' => (string) $this->faker->numberBetween(1, 50),
-            'whatsapp_status' => 'waiting',
+            'whatsapp_status' => 'pending',
             'qr_code' => $token,
             'invitation_link' => url("/checkin/{$token}"),
         ];

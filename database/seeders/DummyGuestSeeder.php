@@ -74,7 +74,7 @@ class DummyGuestSeeder extends Seeder
                     'phone'          => '08' . rand(100000000, 999999999),
                     'type'           => $tipe,
                     'table_number'   => rand(1, 20),
-                    'whatsapp_status' => 'waiting',
+                    'whatsapp_status' => 'pending',
                     'qr_code'        => $qrCode,
                     'rsvp_status'    => 'attending',
                     'plus_one_count' => rand(0, 2),

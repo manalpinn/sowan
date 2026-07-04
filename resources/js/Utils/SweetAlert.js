@@ -18,12 +18,12 @@ const SweetAlert = Swal.mixin({
         popup: 'animate__animated animate__zoomOut animate__faster'
     },
     heightAuto: false,
-    width: '480px'
+    width: 'min(480px, 92%)'
 });
 
 export const notify = {
     success(title, text = '') {
-        return SweetAlert.fire({
+        return Swal.fire({
             icon: 'success',
             title,
             text,
@@ -34,15 +34,17 @@ export const notify = {
             toast: true,
             backdrop: false,
             position: 'top-end',
-            width: '300px',
+            width: 'auto',
             iconHtml: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
             customClass: {
-                popup: 'rounded-xl shadow-lg border-none'
+                popup: 'rounded-xl shadow-lg border-none',
+                title: 'text-sm font-bold text-slate-800 dark:text-white',
+                htmlContainer: 'text-xs text-slate-500 dark:text-slate-400'
             }
         });
     },
     error(title, text = '') {
-        return SweetAlert.fire({
+        return Swal.fire({
             icon: 'error',
             title,
             text,
@@ -53,10 +55,12 @@ export const notify = {
             toast: true,
             backdrop: false,
             position: 'top-end',
-            width: '300px',
+            width: 'auto',
             iconHtml: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
             customClass: {
-                popup: 'rounded-xl shadow-lg border-none'
+                popup: 'rounded-xl shadow-lg border-none',
+                title: 'text-sm font-bold text-slate-800 dark:text-white',
+                htmlContainer: 'text-xs text-slate-500 dark:text-slate-400'
             }
         });
     },

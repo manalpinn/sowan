@@ -21,7 +21,7 @@ class DashboardController extends Controller
             return $this->superAdminDashboard();
         }
 
-        return $this->adminEventDashboard($user);
+        return $this->adminEventDashboard($user, $request);
     }
 
     private function superAdminDashboard(): Response
@@ -47,7 +47,7 @@ class DashboardController extends Controller
                 'theme_color' => $e->theme_color,
                 'total_guests' => $e->guests_count,
                 'total_checkins' => $e->checkins_count,
-                'status' => $e->start_date->isFuture() || $e->start_date->isToday() ? 'Aktif' : 'Selesai',
+                'status' => $e->is_active ? 'Aktif' : 'Selesai',
             ]);
 
 
@@ -112,57 +112,106 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function adminEventDashboard($user): Response
+    private function adminEventDashboard($user, Request $request): Response
     {
-        $eventId = $user->event_id;
-
-        $total = Guest::where('event_id', $eventId)->count();
-        $checkedIn = Checkin::where('event_id', $eventId)->whereIn('status', ['checkin', 'checkout'])->count();
-        $checkedOut = Checkin::where('event_id', $eventId)->where('status', 'checkout')->count();
+        $managedIds = $user->getManagedEventIds();
         
-        $rsvp_attending = Guest::where('event_id', $eventId)->where('rsvp_status', 'attending')->count();
-        $total_pax = Guest::where('event_id', $eventId)->where('rsvp_status', 'attending')->sum(\DB::raw('plus_one_count + 1'));
-        $rsvp_declined = Guest::where('event_id', $eventId)->where('rsvp_status', 'declined')->count();
-
+        if (empty($managedIds)) {
+            return Inertia::render('Dashboard', [
+                'role' => 'admin_event',
+                'stats' => null,
+                'events' => null,
+                'charts' => null,
+            ]);
+        }
+        
         $stats = [
-            'total_guests' => $total,
-            'checked_in' => $checkedIn,
-            'not_arrived' => $total - $checkedIn,
-            'checked_out' => $checkedOut,
-            'rsvp_attending' => $rsvp_attending,
-            'total_pax' => (int)$total_pax,
-            'rsvp_declined' => $rsvp_declined,
+            'total_events' => count($managedIds),
+            'total_guests' => Guest::whereIn('event_id', $managedIds)->count(),
+            'total_checkins' => Checkin::whereIn('event_id', $managedIds)->whereIn('status', ['checkin', 'checkout'])->count(),
+            'total_checkouts' => Checkin::whereIn('event_id', $managedIds)->where('status', 'checkout')->count(),
+            'total_rsvp' => Guest::whereIn('event_id', $managedIds)->whereIn('rsvp_status', ['attending', 'declined'])->count(),
+            'total_attending' => Guest::whereIn('event_id', $managedIds)->where('rsvp_status', 'attending')->sum(\DB::raw('plus_one_count + 1')),
         ];
 
-        $guestTypes = Guest::where('event_id', $eventId)
+        $events = Event::whereIn('id', $managedIds)
+            ->withCount(['guests', 'checkins'])
+            ->orderBy('start_date', 'desc')
+            ->paginate(5, ['*'], 'events_page')
+            ->withQueryString()
+            ->through(fn($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'date' => $e->start_date->format('d M Y'),
+                'location' => $e->location,
+                'theme_color' => $e->theme_color,
+                'total_guests' => $e->guests_count,
+                'total_checkins' => $e->checkins_count,
+                'status' => $e->is_active ? 'Aktif' : 'Selesai',
+            ]);
+
+        // 1. Jumlah Event per Bulan (Last 12 Months)
+        $eventsPerMonth = Event::whereIn('id', $managedIds)
+            ->selectRaw("DATE_FORMAT(start_date, '%Y-%m') as month, COUNT(*) as total")
+            ->where('start_date', '>=', now()->subMonths(12))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->map(fn($m) => [
+                'month' => \Carbon\Carbon::parse($m->month . '-01')->format('M Y'),
+                'total' => $m->total,
+            ]);
+
+        // 2. Kehadiran Tamu (Top 8 Events) - Total vs Hadir
+        $guestAttendance = Event::whereIn('id', $managedIds)
+            ->withCount(['guests', 'checkins'])
+            ->orderBy('start_date', 'desc')
+            ->take(8)
+            ->get()
+            ->map(fn($e) => [
+                'name' => $e->name,
+                'total' => $e->guests_count,
+                'present' => $e->checkins_count,
+            ]);
+
+        // 3. Check-in vs Check-out Distribution (Scoped)
+        $checkinOut = [
+            'checkin' => $stats['total_checkins'],
+            'checkout' => $stats['total_checkouts'],
+        ];
+
+        // 4. Guest Type Distribution (Scoped)
+        $guestTypes = Guest::whereIn('event_id', $managedIds)
             ->selectRaw('type, COUNT(*) as total')
             ->groupBy('type')
             ->get();
 
-        $arrivalTrend = Checkin::where('event_id', $eventId)
+        // 5. Recent Activity Feed (Scoped)
+        $recentCheckins = Checkin::with(['guest', 'event'])
+            ->whereIn('event_id', $managedIds)
             ->whereNotNull('checkin_time')
-            ->selectRaw("DATE_FORMAT(checkin_time, '%H:00') as hour, COUNT(*) as total")
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get();
-
-        $event = $user->event;
+            ->orderBy('checkin_time', 'desc')
+            ->take(6)
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'guest_name' => $c->guest?->name,
+                'event_name' => $c->event?->name,
+                'time' => $c->checkin_time->diffForHumans(),
+                'status' => $c->status,
+            ]);
 
         return Inertia::render('Dashboard', [
             'role' => 'admin_event',
-            'event' => $event ? [
-                'id' => $event->id,
-                'name' => $event->name,
-                'date' => $event->start_date->format('d M Y'),
-                'location' => $event->location,
-                'theme_color' => $event->theme_color,
-                'attendance_type' => $event->attendance_type,
-            ] : null,
             'stats' => $stats,
+            'events' => $events,
             'charts' => [
+                'eventsPerMonth' => $eventsPerMonth,
+                'guestAttendance' => $guestAttendance,
+                'checkinOut' => $checkinOut,
                 'guestTypes' => $guestTypes,
-                'arrivalTrend' => $arrivalTrend,
-            ],
+                'recentCheckins' => $recentCheckins,
+            ]
         ]);
     }
 }

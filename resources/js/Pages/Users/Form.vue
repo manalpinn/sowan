@@ -21,23 +21,10 @@
             <div v-if="form.errors.email" class="form-error">{{ form.errors.email }}</div>
           </div>
 
-          <div class="grid grid-2 gap-6">
-            <div class="form-group">
-              <label class="form-label">Role <span class="text-danger">*</span></label>
-              <select v-model="form.role" class="form-select" required>
-                <option value="admin_event">Admin Event</option>
-                <option value="superadmin">Super Admin</option>
-              </select>
-              <div v-if="form.errors.role" class="form-error">{{ form.errors.role }}</div>
-            </div>
-            <div class="form-group" v-if="form.role === 'admin_event'">
-              <label class="form-label">Penugasan Event <span class="text-danger">*</span></label>
-              <select v-model="form.event_id" class="form-select" :required="form.role === 'admin_event'">
-                <option value="">Pilih Event...</option>
-                <option v-for="event in events" :key="event.id" :value="event.id">{{ event.name }}</option>
-              </select>
-              <div v-if="form.errors.event_id" class="form-error">{{ form.errors.event_id }}</div>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Penugasan Event <span class="text-danger">*</span></label>
+            <MultiSelectEvent v-model="form.event_ids" :initial-selected="user?.initial_events ?? []" />
+            <div v-if="form.errors.event_ids" class="form-error">{{ form.errors.event_ids }}</div>
           </div>
 
           <div class="divider mt-4 mb-6"></div>
@@ -72,18 +59,17 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import MultiSelectEvent from '@/Components/MultiSelectEvent.vue';
 import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   user: Object,
-  events: Array,
 });
 
 const form = useForm({
   name: props.user?.name ?? '',
   email: props.user?.email ?? '',
-  role: props.user?.role ?? 'admin_event',
-  event_id: props.user?.event_id ?? '',
+  event_ids: props.user?.event_ids ?? [],
   password: '',
   password_confirmation: '',
 });

@@ -72,7 +72,7 @@
           </div>
 
           <!-- Distribution Chart -->
-          <div class="card p-8 shadow-sm border-slate-100/80 bg-white rounded-3xl relative overflow-hidden group">
+          <div class="card p-8 relative overflow-hidden group">
             <div class="flex items-center justify-between mb-8 relative z-10">
               <div class="flex items-center gap-3">
                 <div class="h-6 w-1.5 bg-success rounded-full"></div>
@@ -98,7 +98,7 @@
 
         <!-- Guest Attendance Bar Chart -->
         <div class="grid grid-cols-1 gap-6">
-          <div class="card p-8 shadow-sm border-slate-100/80 bg-white rounded-3xl">
+          <div class="card p-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div class="flex items-center gap-3">
                 <div class="flex flex-col">
@@ -133,8 +133,8 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="c in charts.recentCheckins" :key="c.id"
-            class="card px-5 py-4 flex items-center gap-4 transition-all hover:border-violet-200 group">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
+            class="card px-5 py-4 flex items-center gap-4 transition-all group">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 group-hover:bg-violet-600 group-hover:text-white transition-colors">
               <ArrowLeftOnRectangleIcon v-if="c.status === 'checkout'" class="w-5 h-5" stroke-width="2.5" />
               <ArrowRightOnRectangleIcon v-else class="w-5 h-5" stroke-width="2.5" />
             </div>
@@ -159,53 +159,53 @@
           <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">
             Ringkasan Event Terbaru
           </h3>
-          <Link :href="route('events.index')" class="text-[10px] font-black text-violet-600 hover:text-white hover:bg-violet-600 border border-violet-100 bg-white px-4 py-2 rounded-xl transition-all uppercase tracking-widest">Lihat Semua &rarr;</Link>
+          <Link :href="route('events.index')" class="text-[10px] font-black text-violet-600 dark:text-violet-400 hover:text-white hover:bg-violet-600 border border-violet-100 dark:border-violet-900/50 bg-white dark:bg-slate-800 px-4 py-2 rounded-xl transition-all uppercase tracking-widest">Lihat Semua &rarr;</Link>
         </div>
         
-        <div class="card overflow-hidden shadow-sm border-slate-100/80 bg-white rounded-3xl" v-if="events">
+        <div class="card overflow-hidden" v-if="events">
           <div class="table-wrapper">
             <table class="data-table w-full">
               <thead>
                 <tr>
-                  <th class="pl-8 pr-4 py-4 text-left border-b border-slate-50">
-                    <div class="flex items-center gap-2">
-                      <CalendarIcon class="w-3.5 h-3.5 text-slate-400" stroke-width="2.5" />
-                      <span class="text-[10px] uppercase tracking-widest">Event</span>
+                  <th class="pl-8 pr-4 py-4 text-left border-b border-slate-50 dark:border-slate-700/50">
+                    <div class="flex items-center gap-2 text-slate-400 dark:text-slate-500">
+                      <CalendarIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                      <span class="text-[10px] font-bold uppercase tracking-widest">Event</span>
                     </div>
                   </th>
-                  <th class="px-6 py-4 text-left border-b border-slate-50">
-                    <div class="flex items-center gap-2">
-                      <MapPinIcon class="w-3.5 h-3.5 text-slate-400" stroke-width="2.5" />
-                      <span class="text-[10px] uppercase tracking-widest">Lokasi</span>
+                  <th class="px-6 py-4 text-left border-b border-slate-50 dark:border-slate-700/50">
+                    <div class="flex items-center gap-2 text-slate-400 dark:text-slate-500">
+                      <MapPinIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                      <span class="text-[10px] font-bold uppercase tracking-widest">Lokasi</span>
                     </div>
                   </th>
-                  <th class="px-6 py-4 text-center border-b border-slate-50">
-                    <div class="flex items-center justify-center gap-2">
-                      <ShieldCheckIcon class="w-3.5 h-3.5 text-slate-400" stroke-width="2.5" />
-                      <span class="text-[10px] uppercase tracking-widest">Status</span>
+                  <th class="px-6 py-4 text-center border-b border-slate-50 dark:border-slate-700/50">
+                    <div class="flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
+                      <ShieldCheckIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                      <span class="text-[10px] font-bold uppercase tracking-widest">Status</span>
                     </div>
                   </th>
-                  <th class="px-6 py-4 text-center border-b border-slate-50">
-                    <div class="flex items-center justify-center gap-2">
-                      <UserGroupIcon class="w-3.5 h-3.5 text-slate-400" stroke-width="2.5" />
-                      <span class="text-[10px] uppercase tracking-widest">Tamu</span>
+                  <th class="px-6 py-4 text-center border-b border-slate-50 dark:border-slate-700/50">
+                    <div class="flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
+                      <UserGroupIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                      <span class="text-[10px] font-bold uppercase tracking-widest">Tamu</span>
                     </div>
                   </th>
-                  <th class="pl-4 pr-8 py-4 text-right border-b border-slate-50">
-                    <div class="flex items-center justify-end gap-2">
-                      <CheckBadgeIcon class="w-3.5 h-3.5 text-slate-400" stroke-width="2.5" />
-                      <span class="text-[10px] uppercase tracking-widest">Hadir</span>
+                  <th class="px-6 py-4 text-center border-b border-slate-50 dark:border-slate-700/50">
+                    <div class="flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
+                      <CheckBadgeIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                      <span class="text-[10px] font-bold uppercase tracking-widest">Hadir</span>
                     </div>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <template v-if="events?.data && events.data.length > 0">
-                  <tr v-for="e in events.data" :key="e?.id" class="transition-all hover:bg-slate-50/50 border-b border-slate-50 last:border-0 group">
+                  <tr v-for="e in events.data" :key="e?.id" class="transition-all hover:bg-slate-50/50 dark:hover:bg-slate-700/30 border-b border-slate-50 dark:border-slate-700/50 last:border-0 group">
                     <td class="pl-8 pr-4 py-6">
                       <div class="flex flex-col">
-                        <span class="font-black text-slate-700 text-sm group-hover:text-violet-600 transition-colors">{{ e.name }}</span>
-                        <span class="text-[11px] text-slate-400 mt-1 font-bold">{{ e.date }}</span>
+                        <span class="font-black text-slate-700 dark:text-slate-200 text-sm group-hover:text-violet-600 dark:text-violet-400 transition-colors">{{ e.name }}</span>
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-bold">{{ e.date }}</span>
                       </div>
                     </td>
                     <td class="px-6 py-6">
@@ -219,14 +219,14 @@
                     <td class="px-6 py-6 text-center">
                       <span class="text-sm font-black text-primary">{{ e.total_guests ?? 0 }}</span>
                     </td>
-                    <td class="pl-4 pr-8 py-6">
-                      <div class="flex items-center justify-end gap-5">
-                        <div class="flex flex-col items-end">
-                          <span class="text-sm font-black text-slate-700">{{ e.total_checkins ?? 0 }}</span>
-                          <span class="px-2 py-0.5 bg-violet-50 text-violet-600 rounded-lg text-[9px] font-black uppercase tracking-wider mt-1">{{ (e.total_guests > 0 ? Math.round(e.total_checkins / e.total_guests * 100) : 0) }}%</span>
+                    <td class="px-6 py-6">
+                      <div class="flex items-center justify-center gap-5">
+                        <div class="flex flex-col items-center">
+                          <span class="text-sm font-black text-slate-700 dark:text-slate-200">{{ e.total_checkins ?? 0 }}</span>
+                          <span class="px-2 py-0.5 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-lg text-[9px] font-black uppercase tracking-wider mt-1">{{ (e.total_guests > 0 ? Math.round(e.total_checkins / e.total_guests * 100) : 0) }}%</span>
                         </div>
-                        <div class="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
-                          <div class="h-full bg-violet-500 rounded-full transition-all duration-1000 ease-out" 
+                        <div class="w-24 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden hidden sm:block">
+                          <div class="h-full bg-violet-500 dark:bg-violet-400 rounded-full transition-all duration-1000 ease-out" 
                             :style="{ width: (e.total_guests > 0 ? (e.total_checkins / e.total_guests * 100) : 0) + '%' }">
                           </div>
                         </div>
@@ -237,10 +237,10 @@
                 <tr v-else>
                   <td colspan="5" class="px-8 py-24 text-center">
                     <div class="flex flex-col items-center">
-                      <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mb-4">
+                      <div class="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center text-slate-300 dark:text-slate-700 mb-4">
                         <CalendarIcon class="w-8 h-8" />
                       </div>
-                      <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Belum ada data event yang tersedia.</p>
+                      <p class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Belum ada data event yang tersedia.</p>
                     </div>
                   </td>
                 </tr>

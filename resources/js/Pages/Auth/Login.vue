@@ -11,19 +11,19 @@
             <div class="space-y-7">
                 <!-- Email -->
                 <div>
-                    <label for="email" class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2.5 ml-1">Alamat Email</label>
+                    <label for="email" class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2.5 ml-1">Alamat Email / Username</label>
                     <div class="relative group">
                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors">
                             <EnvelopeIcon class="h-5 w-5" />
                         </span>
                         <input
                             id="email"
-                            type="email"
+                            type="text"
                             class="w-full pl-14 pr-5 py-4 bg-slate-50 border-slate-100 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 focus:bg-white transition-all outline-none font-medium"
                             v-model="form.email"
                             required
                             autofocus
-                            placeholder="nama@sowan.id"
+                            placeholder="nama@sowan.id atau username"
                             autocomplete="username"
                         />
                     </div>
@@ -104,6 +104,19 @@
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 </button>
+
+                <!-- Back to Home -->
+                <div class="text-center pt-2">
+                    <Link
+                        href="/"
+                        class="text-xs font-black text-slate-500 hover:text-violet-600 transition-colors uppercase tracking-widest inline-flex items-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali ke Beranda
+                    </Link>
+                </div>
             </div>
         </form>
     </GuestLayout>

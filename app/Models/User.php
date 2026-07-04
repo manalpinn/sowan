@@ -19,7 +19,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'event_id',
+        'is_demo',
     ];
 
     protected $hidden = [
@@ -32,12 +32,13 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_demo' => 'boolean',
         ];
     }
 
-    public function event(): BelongsTo
+    public function events()
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsToMany(Event::class, 'event_user');
     }
 
     public function isSuperAdmin(): bool
@@ -51,13 +52,25 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the event the admin is managing (for admin_event role).
+     * Get the events the admin is managing (for admin_event role).
      */
-    public function getManagedEventId(): ?int
+    public function getManagedEventIds(): array
     {
         if ($this->isSuperAdmin()) {
-            return null; // Superadmin has access to all
+            return []; // Superadmin has access to all, usually doesn't need specific IDs
         }
-        return $this->event_id;
+        return $this->events()->pluck('events.id')->toArray();
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            if ($user->is_demo) {
+                // Delete all events managed by the demo user
+                $user->events()->each(function ($event) {
+                    $event->delete();
+                });
+            }
+        });
     }
 }

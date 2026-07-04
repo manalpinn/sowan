@@ -75,7 +75,7 @@
         </nav>
 
         <!-- Hero Section -->
-        <section class="relative overflow-hidden pt-28 pb-16 md:pt-40 md:pb-24 lg:pt-56 lg:pb-40">
+        <section class="relative overflow-hidden pt-24 pb-8 md:pt-28 md:pb-12 lg:pt-32 lg:pb-12">
             <!-- Decorative Orbs -->
             <div class="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-violet-100/40 blur-[120px] animate-pulse hidden lg:block"></div>
             <div class="absolute top-1/2 -left-40 h-[400px] w-[400px] rounded-full bg-indigo-100/30 blur-[100px] hidden lg:block"></div>
@@ -90,7 +90,7 @@
                         </div>
 
                         <!-- Headline -->
-                        <h1 class="mb-6 md:mb-8 text-5xl sm:text-6xl md:text-7xl lg:text-[86px] xl:text-[96px] font-black leading-[0.9] tracking-tighter text-slate-900">
+                        <h1 class="mb-6 md:mb-8 text-4xl sm:text-5xl md:text-7xl lg:text-[86px] xl:text-[96px] font-black leading-[0.9] tracking-tighter text-slate-900">
                             Efisien<span class="text-violet-600">.</span><br />
                             Aman<span class="text-violet-600">.</span><br />
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-500 to-violet-400">Digital.</span>
@@ -103,15 +103,15 @@
 
                         <!-- CTA Actions -->
                         <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6">
-                            <Link :href="route('login')" class="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-2xl bg-violet-600 px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-black text-white transition-all duration-300 hover:bg-violet-700 hover:-translate-y-1 hover:shadow-2xl hover:shadow-violet-200 active:scale-95 shadow-xl shadow-violet-100">
+                            <Link :href="route('login')" class="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-2xl bg-violet-600 px-6 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-black text-white transition-all duration-300 hover:bg-violet-700 hover:-translate-y-1 hover:shadow-2xl hover:shadow-violet-200 active:scale-95 shadow-xl shadow-violet-100">
                                 Mulai Sekarang
-                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition-transform group-hover:rotate-45">
-                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3">
+                                <div class="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-white/20 transition-transform group-hover:rotate-45">
+                                    <svg viewBox="0 0 24 24" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" stroke-width="3">
                                         <path d="M7 17L17 7M17 7H7M17 7V17" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
                             </Link>
-                            <a href="#fitur" class="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-600 hover:text-violet-600 transition-all border-b-2 border-transparent hover:border-violet-200 py-1 uppercase tracking-wider">
+                            <a href="#fitur" class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-slate-600 hover:text-violet-600 transition-all border-b-2 border-transparent hover:border-violet-200 py-3 sm:py-1 uppercase tracking-wider bg-slate-50 sm:bg-transparent rounded-xl sm:rounded-none">
                                 Lihat Fitur
                             </a>
                         </div>
@@ -124,9 +124,9 @@
                         
                         <!-- Mockup Frame -->
                         <div class="relative p-2 sm:p-3 rounded-[32px] sm:rounded-[52px] bg-gradient-to-br from-slate-200 via-white to-slate-200 shadow-2xl transition-transform duration-700 lg:group-hover:scale-[1.03]">
-                            <div class="relative overflow-hidden rounded-[24px] sm:rounded-[40px] bg-white aspect-[4/3.5] shadow-inner border border-slate-100/50">
+                            <div class="relative overflow-hidden rounded-[24px] sm:rounded-[40px] bg-white aspect-[4/3.5] sm:aspect-[4/3.5] h-[300px] sm:h-auto shadow-inner border border-slate-100/50">
                                 <!-- Dashboard Interface Mockup -->
-                                <div class="absolute inset-0 flex flex-col bg-[#F8FAFC] scale-[0.6] sm:scale-100 origin-top">
+                                <div class="absolute inset-0 flex flex-col bg-[#F8FAFC]">
                                     <!-- Sidebar + Top Bar Mock -->
                                     <div class="flex h-full">
                                         <!-- Mini Sidebar -->
@@ -186,8 +186,8 @@
                         </div>
 
                         <!-- Floating Badges (Hidden on mobile) -->
-                        <div class="hidden sm:block absolute -top-6 -right-6 w-36 md:w-44 bg-white p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl border border-violet-50 animate-bounce-slow z-30">
-                            <div class="flex items-center gap-3 mb-3">
+                        <div class="hidden sm:block absolute -top-4 -right-4 w-auto bg-white p-2.5 md:p-3 pr-4 md:pr-5 rounded-xl md:rounded-2xl shadow-2xl border border-violet-50 animate-bounce-slow z-30">
+                            <div class="flex items-center gap-3">
                                 <div class="h-8 w-8 md:h-9 md:w-9 rounded-lg md:rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-200">
                                     <ShieldCheckIcon class="h-4 w-4 md:h-5 md:w-5" />
                                 </div>
@@ -212,40 +212,40 @@
         </section>
 
         <!-- Features Section -->
-        <section id="fitur" class="py-24 md:py-36 lg:py-48 bg-slate-50/30 relative overflow-hidden">
+        <section id="fitur" class="py-12 md:py-16 lg:py-20 relative overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-30"></div>
             
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-20 md:mb-32">
-                    <div class="max-w-2xl">
-                        <div class="inline-flex items-center gap-3 rounded-full border border-violet-100 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-violet-600 mb-8 shadow-sm">
+                    <div class="max-w-2xl text-center lg:text-left mx-auto lg:mx-0">
+                        <div class="inline-flex items-center gap-3 rounded-full border border-violet-100 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-violet-600 mb-6 sm:mb-8 shadow-sm">
                             <SparklesIcon class="h-3 w-3" />
                             Premium Features
                         </div>
-                        <h2 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-[0.95]">
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-[0.95]">
                             Solusi Cerdas<br />
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-500">Manajemen Tamu.</span>
                         </h2>
                     </div>
-                    <p class="max-w-md text-lg text-slate-500 font-medium leading-relaxed pb-2">
+                    <p class="max-w-md text-base sm:text-lg text-slate-500 font-medium leading-relaxed pb-2 text-center lg:text-left mx-auto lg:mx-0">
                         Sistem kami dirancang untuk menghadirkan efisiensi maksimal tanpa mengorbankan keamanan data instansi Anda.
                     </p>
                 </div>
 
                 <!-- Features Grid -->
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    <div v-for="(f, i) in features" :key="i" class="group relative bg-white rounded-[32px] p-8 sm:p-10 border border-slate-100 transition-all duration-700 hover:border-violet-200 hover:shadow-[0_30px_70px_-15px_rgba(124,58,237,0.12)] hover:-translate-y-3 overflow-hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    <div v-for="(f, i) in features" :key="i" class="group relative bg-white rounded-[24px] sm:rounded-[32px] p-6 sm:p-10 border border-slate-100 transition-all duration-700 hover:border-violet-200 hover:shadow-[0_30px_70px_-15px_rgba(124,58,237,0.12)] hover:-translate-y-3 overflow-hidden text-center sm:text-left flex flex-col items-center sm:items-start">
                         <div class="absolute -top-10 -right-10 h-32 w-32 bg-violet-50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
-                        <div class="relative z-10 mb-12 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-xl group-hover:shadow-violet-200">
+                        <div class="relative z-10 mb-8 sm:mb-12 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-xl group-hover:shadow-violet-200">
                             <component :is="f.icon" class="h-7 w-7" />
                         </div>
                         
-                        <h4 class="relative z-10 mb-4 text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase leading-tight">{{ f.title }}</h4>
+                        <h4 class="relative z-10 mb-3 sm:mb-4 text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-tight">{{ f.title }}</h4>
                         <p class="relative z-10 text-sm leading-relaxed text-slate-500 font-medium group-hover:text-slate-600 transition-colors">{{ f.desc }}</p>
                         
-                        <div class="mt-10 flex items-center gap-2 text-xs font-black text-violet-600 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 uppercase tracking-widest">
+                        <div class="mt-8 sm:mt-10 flex items-center justify-center sm:justify-start gap-2 text-xs font-black text-violet-600 opacity-0 group-hover:opacity-100 transition-all sm:translate-y-4 group-hover:translate-y-0 uppercase tracking-widest">
                             Pelajari Lebih Lanjut
                             <ArrowRightIcon class="h-3 w-3" />
                         </div>
@@ -255,17 +255,17 @@
         </section>
 
         <!-- Benefits & Stats Section -->
-        <section id="manfaat" class="py-24 md:py-36 lg:py-48 relative overflow-hidden">
+        <section id="manfaat" class="py-12 md:py-16 lg:py-20 relative overflow-hidden">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid lg:grid-cols-2 gap-20 lg:gap-32 items-center">
                     <!-- Left: Visual/Stats -->
                     <div class="relative order-2 lg:order-1">
-                        <div class="relative grid grid-cols-2 gap-4 sm:gap-8">
+                        <div class="relative grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                             <div v-for="(stat, i) in stats" :key="i" 
-                                class="group relative bg-white p-8 sm:p-12 rounded-[40px] border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-violet-100 hover:-translate-y-2 text-center"
-                                :class="i % 2 !== 0 ? 'mt-8 sm:mt-12' : ''"
+                                class="group relative bg-white p-8 sm:p-12 rounded-[32px] sm:rounded-[40px] border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-violet-100 hover:-translate-y-2 text-center"
+                                :class="i % 2 !== 0 ? 'sm:mt-12' : ''"
                             >
-                                <div class="text-4xl sm:text-6xl font-black text-slate-900 mb-3 tracking-tighter tabular-nums group-hover:text-violet-600 transition-colors">
+                                <div class="text-5xl sm:text-6xl font-black text-slate-900 mb-3 tracking-tighter tabular-nums group-hover:text-violet-600 transition-colors">
                                     {{ stat.value }}
                                 </div>
                                 <div class="text-[11px] sm:text-[13px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{{ stat.label }}</div>
@@ -284,7 +284,7 @@
                             <ShieldCheckIcon class="h-3 w-3" />
                             Security Protocol
                         </div>
-                        <h3 class="text-4xl sm:text-5xl font-black text-slate-900 mb-10 tracking-tighter leading-[1.05] uppercase">
+                        <h3 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 sm:mb-10 tracking-tighter leading-[1.05] uppercase">
                             Keamanan &<br />
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-500">Infrastruktur</span> Teruji.
                         </h3>
@@ -292,13 +292,13 @@
                             Kami membangun Sowan dengan standar keamanan perbankan, memastikan setiap data kunjungan tersimpan dengan enkripsi tingkat tinggi dan hanya dapat diakses oleh pihak yang berwenang.
                         </p>
                         
-                        <div class="space-y-6 text-left">
-                            <div v-for="(adv, i) in advantages" :key="i" class="group flex items-center gap-6 p-5 sm:p-6 rounded-3xl border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-300">
-                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white text-xs font-black group-hover:bg-violet-600 group-hover:scale-110 transition-all">
+                        <div class="space-y-4 sm:space-y-6 text-left">
+                            <div v-for="(adv, i) in advantages" :key="i" class="group flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-5 sm:p-6 rounded-[24px] sm:rounded-3xl border border-transparent bg-slate-50/50 sm:bg-transparent hover:border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-300 text-center sm:text-left">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white text-xs font-black group-hover:bg-violet-600 group-hover:scale-110 transition-all shadow-md sm:shadow-none">
                                     0{{ i + 1 }}
                                 </div>
                                 <div>
-                                    <h5 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase group-hover:text-violet-600 transition-colors">{{ adv.title }}</h5>
+                                    <h5 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase group-hover:text-violet-600 transition-colors mb-1 sm:mb-0">{{ adv.title }}</h5>
                                     <p class="text-sm text-slate-500 font-medium leading-relaxed">{{ adv.desc }}</p>
                                 </div>
                             </div>
@@ -309,60 +309,65 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="relative py-24 md:py-40 lg:py-56 bg-[#0B0A12] overflow-hidden">
+        <section class="relative py-12 md:py-16 lg:py-20 overflow-hidden">
             <!-- Sophisticated Background Elements -->
             <div class="absolute inset-0">
-                <div class="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-violet-500/20 to-transparent"></div>
-                <div class="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-violet-500/20 to-transparent"></div>
-                <div class="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-violet-500/10 to-transparent"></div>
+                <div class="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-violet-500/10 to-transparent"></div>
+                <div class="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-violet-500/10 to-transparent"></div>
+                <div class="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-violet-500/5 to-transparent"></div>
             </div>
             
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-600/5 rounded-full blur-[120px]"></div>
 
             <div class="relative mx-auto max-w-5xl px-4 sm:px-6 text-center">
-                <div class="mb-12 inline-flex items-center justify-center p-1 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-2xl shadow-violet-500/20">
+                <div class="mb-12 inline-flex items-center justify-center p-1 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-xl shadow-violet-200">
                         <UserGroupIcon class="h-8 w-8" />
                     </div>
                 </div>
                 
-                <h2 class="text-4xl sm:text-6xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-[0.9] uppercase">
+                <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 mb-6 sm:mb-8 tracking-tighter leading-[1] sm:leading-[0.9] uppercase">
                     Siap Memulai<br />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-300 italic">Era Baru?</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-500 italic pr-4 lg:pr-8">Era Baru?</span>
                 </h2>
                 
-                <p class="text-slate-400 text-lg sm:text-xl mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
+                <p class="text-slate-500 text-base sm:text-lg lg:text-xl mb-12 sm:mb-16 max-w-2xl mx-auto font-medium leading-relaxed px-4">
                     Jadikan setiap kunjungan sebagai pengalaman yang profesional, cepat, dan aman dengan sistem Sowan.
                 </p>
                 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <Link :href="route('login')" class="group w-full sm:w-auto inline-flex items-center justify-center gap-4 rounded-3xl bg-violet-600 px-10 py-6 text-xl font-black text-white transition-all hover:bg-violet-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(124,58,237,0.3)]">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4">
+                    <Link :href="route('login')" class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 sm:gap-4 rounded-[20px] sm:rounded-3xl bg-violet-600 px-8 py-5 sm:px-10 sm:py-6 text-lg sm:text-xl font-black text-white transition-all hover:bg-violet-700 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(124,58,237,0.2)]">
                         Masuk Dashboard
-                        <ArrowRightIcon class="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                        <ArrowRightIcon class="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover:translate-x-1" />
                     </Link>
                     
-                    <a href="#fitur" class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-6 text-xl font-black text-white border border-white/10 rounded-3xl hover:bg-white/5 transition-all">
+                    <a href="#fitur" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 sm:px-10 sm:py-6 text-lg sm:text-xl font-black text-violet-600 border border-violet-200 bg-white rounded-[20px] sm:rounded-3xl hover:bg-violet-50 transition-all shadow-sm">
                         Eksplorasi Fitur
                     </a>
                 </div>
                 
                 <div class="mt-20 flex flex-col items-center gap-4">
                     <div class="flex -space-x-3">
-                        <div v-for="i in 4" :key="i" class="h-10 w-10 rounded-full border-2 border-[#0B0A12] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white">
-                            {{ String.fromCharCode(64 + i) }}
+                        <div v-for="(logo, i) in [
+                            { src: 'https://cdn.simpleicons.org/gojek', alt: 'Gojek' },
+                            { src: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/New_Logo_AMIKOM.png', alt: 'Amikom' },
+                            { src: 'https://cdn.simpleicons.org/blibli', alt: 'Blibli' },
+                            { src: 'https://cdn.simpleicons.org/shopee', alt: 'Shopee' }
+                        ]" :key="i" class="h-10 w-10 rounded-full border-2 border-slate-50 bg-white flex items-center justify-center overflow-hidden p-2 shadow-sm hover:-translate-y-1 transition-transform z-0 hover:z-10 relative cursor-pointer">
+                            <img :src="logo.src" :alt="`Logo ${logo.alt}`" class="h-full w-full object-contain" />
                         </div>
                     </div>
-                    <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">Dipercaya oleh instansi ternama di Indonesia</p>
+                    <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] text-center">Dipercaya oleh institusi dan perusahaan teknologi terkemuka</p>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="bg-white border-t border-slate-100 pt-24 pb-12">
+        <footer class="bg-white border-t border-slate-100 pt-16 pb-12">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="grid lg:grid-cols-12 gap-16 mb-20">
-                    <div class="lg:col-span-5">
-                        <Link href="/" class="flex items-center gap-3 mb-8 group">
+                    <div class="lg:col-span-5 flex flex-col items-center lg:items-start">
+                        <Link href="/" class="flex items-center gap-3 mb-6 sm:mb-8 group">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 text-white transition-transform group-hover:rotate-6">
                                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5">
                                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -372,20 +377,20 @@
                             </div>
                             <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">SOWAN<span class="text-violet-600">.</span></span>
                         </Link>
-                        <p class="text-lg text-slate-500 font-medium leading-relaxed max-w-sm mb-10">
+                        <p class="text-base sm:text-lg text-slate-500 font-medium leading-relaxed max-w-sm mb-8 sm:mb-10 mx-auto lg:mx-0 text-center lg:text-left">
                             Membangun standar baru dalam manajemen tamu digital untuk instansi pemerintah dan organisasi swasta.
                         </p>
                         <!-- Updated Footer Icons -->
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 justify-center lg:justify-start">
                             <a v-for="(social, i) in socials" :key="i" :href="social.link" class="h-11 w-11 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:text-white hover:bg-violet-600 transition-all duration-300 border border-slate-100 hover:border-violet-600 hover:-translate-y-1 shadow-sm">
                                 <component :is="social.icon" class="h-5 w-5" />
                             </a>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-7 grid sm:grid-cols-3 gap-12">
-                        <div>
-                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-8">Eksplorasi</h6>
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
+                        <div class="text-center sm:text-left">
+                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-6 sm:mb-8">Eksplorasi</h6>
                             <ul class="space-y-4 text-base font-bold text-slate-500 uppercase tracking-tighter">
                                 <li><a href="#" class="hover:text-violet-600 transition-colors">Beranda</a></li>
                                 <li><a href="#fitur" class="hover:text-violet-600 transition-colors">Fitur Utama</a></li>
@@ -393,24 +398,24 @@
                                 <li><Link :href="route('login')" class="hover:text-violet-600 transition-colors">Masuk Sistem</Link></li>
                             </ul>
                         </div>
-                        <div>
-                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-8">Dukungan</h6>
+                        <div class="text-center sm:text-left mt-4 sm:mt-0">
+                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-6 sm:mb-8">Dukungan</h6>
                             <ul class="space-y-4 text-base font-bold text-slate-500 uppercase tracking-tighter">
                                 <li><a href="#" class="hover:text-violet-600 transition-colors">Pusat Bantuan</a></li>
                                 <li><a href="#" class="hover:text-violet-600 transition-colors">Panduan</a></li>
                                 <li><a href="#" class="hover:text-violet-600 transition-colors">Kebijakan</a></li>
                             </ul>
                         </div>
-                        <div>
-                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-8">Kontak</h6>
-                            <div class="text-base font-black text-slate-900 mb-2">support@sowan.id</div>
+                        <div class="text-center sm:text-left mt-4 sm:mt-0">
+                            <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-6 sm:mb-8">Kontak</h6>
+                            <a href="mailto:adminsowan@gmail.com" class="text-base font-black text-slate-900 mb-2 hover:text-violet-600 transition-colors block">adminsowan@gmail.com</a>
                             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Hubungi Admin Teknik.</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-12 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div class="flex items-center gap-4">
+                <div class="pt-8 sm:pt-12 border-t border-slate-100 flex flex-col-reverse md:flex-row items-center justify-between gap-6 sm:gap-8">
+                    <div class="flex items-center gap-3 sm:gap-4">
                         <div class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
                             &copy; {{ currentYear }} SOWAN. SISTEM AKTIF.

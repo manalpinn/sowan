@@ -3,6 +3,7 @@ import axios from 'axios';
 import { debounce } from 'lodash-es';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Html5Qrcode } from 'html5-qrcode';
+import { SafeStorage } from '../../Utils/Storage';
 
 // Note: defineProps is a Vue macro and only works in .vue files.
 // If this file is used as a partial, these variables should be passed in or defined.
@@ -22,7 +23,7 @@ const isOfflineMode = ref(false);
 const downloading = ref(false);
 const syncing = ref(false);
 const offlineGuests = ref([]);
-const offlineQueue = ref(JSON.parse(localStorage.getItem('offline_queue') || '[]'));
+const offlineQueue = ref(SafeStorage.parseJson(SafeStorage.getItem('offline_queue'), []));
 
 // Manual token input
 const manualToken = ref('');
@@ -52,12 +53,8 @@ watch(selectedEventId, () => {
 
 const loadOfflineData = () => {
   if (!selectedEventId.value) return;
-  const data = localStorage.getItem(`offline_data_${selectedEventId.value}`);
-  if (data) {
-    offlineGuests.value = JSON.parse(data);
-  } else {
-    offlineGuests.value = [];
-  }
+  const data = SafeStorage.getItem(`offline_data_${selectedEventId.value}`);
+  offlineGuests.value = SafeStorage.parseJson(data, []);
 };
 
 const startScanner = () => {
@@ -158,7 +155,7 @@ const processOfflineScan = (qrCode) => {
   };
 
   offlineQueue.value.push({ qr_code: qrCode, time: new Date().toISOString() });
-  localStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value));
+  SafeStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value));
   handleSuccess(result);
   startCooldown();
 };
@@ -205,7 +202,7 @@ const downloadForOffline = async () => {
   try {
     const response = await axios.post(route('scanner.offline.download'), { event_id: selectedEventId.value });
     offlineGuests.value = response.data.guests;
-    localStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(response.data.guests));
+    SafeStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(response.data.guests));
     alert(`Berhasil mendownload ${response.data.guests.length} tamu.`);
   } catch (err) { alert('Gagal mendownload data.'); }
   finally { downloading.value = false; }
@@ -218,7 +215,7 @@ const syncOfflineData = async () => {
   try {
     await axios.post(route('scanner.offline.sync'), { event_id: selectedEventId.value, checkins: offlineQueue.value });
     offlineQueue.value = [];
-    localStorage.setItem('offline_queue', JSON.stringify([]));
+    SafeStorage.setItem('offline_queue', JSON.stringify([]));
     alert('Sinkronisasi berhasil!');
   } catch (err) { alert('Gagal sinkronisasi.'); }
   finally { syncing.value = false; }

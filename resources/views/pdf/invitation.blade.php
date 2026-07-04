@@ -40,28 +40,30 @@
             text-align: left;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        /* Template Themes */
-        .header {
-            color: #ffffff;
-            padding: 25px 20px;
-            text-align: center;
-        }
-        /* Formal Theme (Default) */
-        .theme-formal .header { background: #4f46e5; }
-        .theme-formal .guest-name { color: #4f46e5; }
-        .theme-formal .token-value { color: #4f46e5; }
-
-        /* Wedding Theme */
-        .theme-wedding .header { background: #f472b6; }
-        .theme-wedding .guest-name { color: #db2777; font-family: 'Georgia', serif; }
-        .theme-wedding .token-value { color: #db2777; }
+        /* Template Themes Structural */
+        .theme-wedding .guest-name { font-family: 'Georgia', serif; }
         .theme-wedding .logo-box { border-radius: 50%; width: 50px; height: 50px; line-height: 32px; }
 
-        /* Corporate Theme */
-        .theme-corporate .header { background: #0f172a; }
-        .theme-corporate .guest-name { color: #0f172a; }
-        .theme-corporate .token-value { color: #0f172a; }
         .theme-corporate .logo-box { border-radius: 4px; }
+
+        /* Dynamic Colors & Contrast */
+        <?php 
+            $themeColor = $event->theme_color ?? '#4f46e5'; 
+            $hex = str_replace('#', '', $themeColor);
+            if (strlen($hex) == 6) {
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
+                $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+                $contrastColor = ($yiq >= 128) ? '#1e293b' : '#ffffff';
+            } else {
+                $contrastColor = '#ffffff';
+            }
+        ?>
+        .header { background-color: {{ $themeColor }}; color: {{ $contrastColor }}; padding: 25px 20px; text-align: center; }
+        .guest-name { color: {{ $themeColor }}; font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .token-value { color: {{ $themeColor }}; font-size: 30px; font-weight: 900; letter-spacing: 8px; font-family: monospace; }
+
 
         .logo-box {
             display: inline-block;
@@ -114,6 +116,11 @@
                             <div class="detail-item">
                                 <p class="detail-label">Tanggal & Waktu</p>
                                 <p class="detail-value">{{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('l, d F Y') }}</p>
+                                @if($event->start_time && $event->end_time)
+                                <p class="detail-value" style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                    Pukul {{ \Carbon\Carbon::parse($event->start_time)->format('H.i') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('H.i') }} WIB
+                                </p>
+                                @endif
                             </div>
                             <div class="detail-item">
                                 <p class="detail-label">Lokasi Acara</p>

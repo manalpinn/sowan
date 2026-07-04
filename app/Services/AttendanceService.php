@@ -11,12 +11,16 @@ class AttendanceService
     /**
      * Process a guest scan via QR code.
      */
-    public function processToken(string $qrCode, int $eventId, string $method = 'qr'): array
+    public function processToken(string $qrCode, int $eventId, string $method = 'qr', bool $bypassValidation = false): array
     {
-        $guest = Guest::where('qr_code', $qrCode)
-            ->where('event_id', $eventId)
-            ->with('checkin')
-            ->first();
+        $query = Guest::where('qr_code', $qrCode)->with('checkin');
+
+        // Superadmin ($bypassValidation) bisa scan QR tamu dari event manapun tanpa dibatasi event yang dipilih
+        if (!$bypassValidation) {
+            $query->where('event_id', $eventId);
+        }
+
+        $guest = $query->first();
 
         if (!$guest) {
             return [
@@ -26,17 +30,67 @@ class AttendanceService
             ];
         }
 
-        return $this->processGuest($guest, $method);
+        return $this->processGuest($guest, $method, null, $bypassValidation);
     }
 
     /**
      * Process a guest by ID (for manual search or scan result).
      */
-    public function processGuest(Guest $guest, string $method = 'manual', ?string $customTime = null): array
+    public function processGuest(Guest $guest, string $method = 'manual', ?string $customTime = null, bool $bypassValidation = false): array
     {
         $guest->load('event');
         $attendanceType = $guest->event->attendance_type ?? 'checkin_only';
-        $timestamp = $customTime ? \Carbon\Carbon::parse($customTime) : now();
+        
+        $timestamp = now();
+        if ($customTime) {
+            // Parse UTC ISO string and convert to application's timezone
+            $timestamp = \Carbon\Carbon::parse($customTime)->setTimezone(config('app.timezone'));
+        }
+
+        $today = \Carbon\Carbon::today(config('app.timezone'));
+        $eventStartDate = $guest->event->start_date;
+        $eventEndDate = $guest->event->end_date ?? $guest->event->start_date;
+        
+        $startTime = $guest->event->start_time;
+        $endTime = $guest->event->end_time;
+        
+        if (!$guest->event->is_active && !$bypassValidation) {
+            return [
+                'success' => false,
+                'status' => 'inactive',
+                'message' => 'Event sedang tidak aktif',
+            ];
+        }
+        
+        if ($eventStartDate && $eventEndDate && !$bypassValidation) {
+            $eventStartCarbon = \Carbon\Carbon::parse($eventStartDate, config('app.timezone'))->startOfDay();
+            if ($startTime) {
+                $startParts = explode(':', $startTime);
+                $eventStartCarbon->setHour((int)$startParts[0])->setMinute((int)$startParts[1])->setSecond((int)($startParts[2] ?? 0));
+            }
+
+            $eventEndCarbon = \Carbon\Carbon::parse($eventEndDate, config('app.timezone'))->endOfDay();
+            if ($endTime) {
+                $endParts = explode(':', $endTime);
+                $eventEndCarbon->startOfDay()->setHour((int)$endParts[0])->setMinute((int)$endParts[1])->setSecond((int)($endParts[2] ?? 0));
+            }
+
+            if ($timestamp->lt($eventStartCarbon)) {
+                return [
+                    'success' => false,
+                    'status' => 'not_started',
+                    'message' => 'Check-in belum dibuka',
+                ];
+            }
+
+            if ($timestamp->gt($eventEndCarbon)) {
+                return [
+                    'success' => false,
+                    'status' => 'event_expired',
+                    'message' => 'Event telah selesai',
+                ];
+            }
+        }
 
         return DB::transaction(function () use ($guest, $method, $attendanceType, $timestamp) {
             $checkin = $guest->checkin;
@@ -73,8 +127,9 @@ class AttendanceService
             // 3. Case: Check-in & Check-out Mode
             if ($checkin->status === 'checkin') {
                 $checkin->update([
-                    'checkout_time' => now(),
-                    'status' => 'checkout'
+                    'checkout_time' => $timestamp,
+                    'status' => 'checkout',
+                    'checkout_method' => $method
                 ]);
 
                 return [

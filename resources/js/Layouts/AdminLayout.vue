@@ -153,6 +153,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { Link, Head, usePage } from '@inertiajs/vue3';
 import { notify } from '@/Utils/SweetAlert';
+import { SafeStorage } from '@/Utils/Storage';
 import SidebarItem from '@/Components/SidebarItem.vue';
 import { 
   UsersIcon,
@@ -201,25 +202,26 @@ const isSuperAdmin = computed(() => page.props.auth.user.roles?.includes('supera
 const navItems = computed(() => {
   const items = [
     { name: 'Dashboard', href: route('dashboard'), icon: 'dashboard' },
-    { name: 'Tamu', href: route('guests.index'), icon: 'guests' },
-    { name: 'Log Kedatangan', href: route('checkins.index'), icon: 'log' },
-    { name: 'Scan QR', href: route('scanner.index'), icon: 'scan' },
   ];
   if (isSuperAdmin.value) {
-    items.splice(1, 0, { name: 'Event', href: route('events.index'), icon: 'events' });
+    items.push({ name: 'Event', href: route('events.index'), icon: 'events' });
     items.push({ name: 'User', href: route('users.index'), icon: 'users' });
+    items.push({ name: 'Scan QR', href: route('scanner.index'), icon: 'scan' });
+  } else {
+    items.push({ name: 'Event', href: route('events.index'), icon: 'events' });
+    items.push({ name: 'Scan QR', href: route('scanner.index'), icon: 'scan' });
   }
   return items;
 });
 
 function toggleSidebar() {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
-  localStorage.setItem('sidebar_collapsed', isSidebarCollapsed.value);
+  SafeStorage.setItem('sidebar_collapsed', isSidebarCollapsed.value);
 }
 
 function toggleDark() {
   isDark.value = !isDark.value;
-  localStorage.setItem('dark_mode', isDark.value);
+  SafeStorage.setItem('dark_mode', isDark.value);
   if (isDark.value) {
     document.documentElement.classList.add('dark');
   } else {
@@ -234,8 +236,8 @@ function checkMobile() {
 onMounted(() => {
   checkMobile();
   window.addEventListener('resize', checkMobile);
-  isDark.value = localStorage.getItem('dark_mode') === 'true';
-  isSidebarCollapsed.value = localStorage.getItem('sidebar_collapsed') === 'true';
+  isDark.value = SafeStorage.getItem('dark_mode') === 'true';
+  isSidebarCollapsed.value = SafeStorage.getItem('sidebar_collapsed') === 'true';
 
   if (isDark.value) {
     document.documentElement.classList.add('dark');
@@ -615,7 +617,7 @@ watch(() => page.props.flash, (flash) => {
   flex: 1;
   min-width: 0;
 }
-.topbar__title-group { min-width: 0; }
+.topbar__title-group { min-width: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .topbar__page-title {
   font-size: 16px; font-weight: 800;
   color: var(--text-primary);
@@ -697,11 +699,11 @@ watch(() => page.props.flash, (flash) => {
 .topbar__user-role { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
 /* Breadcrumb */
-.breadcrumb { display: flex; align-items: center; gap: 4px; }
-.breadcrumb__link { font-size: 11px; color: var(--primary); text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.breadcrumb { display: flex; align-items: center; gap: 4px; width: 100%; overflow: hidden; }
+.breadcrumb__link { font-size: 11px; color: var(--primary); text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; display: block; }
 .breadcrumb__link:hover { text-decoration: underline; }
-.breadcrumb__current { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-.breadcrumb__sep { font-size: 11px; color: var(--text-muted); }
+.breadcrumb__current { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; display: block; }
+.breadcrumb__sep { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
 
 /* ==========================================
    MAIN CONTENT

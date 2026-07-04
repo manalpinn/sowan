@@ -80,10 +80,11 @@ import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 const props = defineProps({
   guest: Object,
   events: Array,
+  default_event_id: [String, Number],
 });
 
 const form = useForm({
-  event_id: props.guest?.event?.id ?? (props.events.length === 1 ? props.events[0].id : ''),
+  event_id: props.guest?.event_id ?? props.guest?.event?.id ?? (props.events.length === 1 ? props.events[0].id : (props.default_event_id || '')),
   name: props.guest?.name ?? '',
   email: props.guest?.email ?? '',
   phone: props.guest?.phone ?? '',

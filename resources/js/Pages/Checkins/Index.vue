@@ -1,8 +1,10 @@
 <template>
   <AdminLayout
     page-title="Log Kedatangan"
-    :breadcrumbs="[{ label: 'Dashboard', href: route('dashboard') }, { label: 'Log Kedatangan' }]"
+    :breadcrumbs="dynamicBreadcrumbs"
   >
+    <EventTabs v-if="active_event" current="checkins" :event-id="active_event.id" />
+
     <div class="card">
       <!-- Filter Bar -->
       <div class="filter-bar">
@@ -53,16 +55,7 @@
             </div>
           </div>
 
-          <!-- Baris 2: Event (superadmin only) -->
-          <div class="filter-row" v-if="$page.props.auth.user.roles.includes('superadmin')">
-            <div class="filter-field filter-field--event">
-              <ListBulletIcon class="filter-icon h-4 w-4" />
-              <select v-model="eventId" class="filter-input filter-select" @change="onFilterChange">
-                <option value="">Semua Event</option>
-                <option v-for="event in events" :key="event.id" :value="event.id">{{ event.name }}</option>
-              </select>
-            </div>
-          </div>
+          <!-- Event Filter moved to Tabs -->
 
         </div>
 
@@ -85,13 +78,13 @@
         <table class="data-table min-w-full">
           <thead>
             <tr>
-              <th class="px-4 py-3">Tamu</th>
-              <th class="px-4 py-3 hidden md:table-cell">Token</th>
-              <th class="px-4 py-3 hidden lg:table-cell">Event</th>
-              <th class="px-4 py-3">Waktu Masuk</th>
-              <th v-if="hasCheckout" class="px-4 py-3 hidden sm:table-cell">Waktu Keluar</th>
-              <th class="px-4 py-3 text-center">Status</th>
-              <th class="px-4 py-3 text-center hidden sm:table-cell">Metode</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Tamu</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Token</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">Event</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Waktu Masuk</th>
+              <th v-if="hasCheckout" class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Waktu Keluar</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Metode</th>
             </tr>
           </thead>
           <tbody>
@@ -101,7 +94,7 @@
               class="transition-colors"
               :class="{ 'row-new': newIds.has(log.id) }"
             >
-              <td class="px-4 py-4">
+              <td class="px-4 py-4 align-middle">
                 <div class="flex flex-col min-w-[120px]">
                   <span class="font-bold text-sm text-primary">{{ log.guest_name }}</span>
                   <span class="text-xs text-muted">{{ log.guest_type }}</span>
@@ -109,14 +102,14 @@
                   <span class="text-xs text-muted mt-0.5 lg:hidden truncate max-w-[140px]">{{ log.event_name }}</span>
                 </div>
               </td>
-              <td class="px-4 py-4 hidden md:table-cell">
+              <td class="px-4 py-4 align-middle hidden md:table-cell">
                 <code class="font-mono font-bold text-primary text-sm tracking-widest">{{ log.guest_token }}</code>
               </td>
-              <td class="px-4 py-4 hidden lg:table-cell">
+              <td class="px-4 py-4 align-middle hidden lg:table-cell">
                 <span class="text-sm text-secondary font-medium">{{ log.event_name }}</span>
               </td>
               <!-- Waktu Masuk: dua baris (jam besar + tanggal kecil) -->
-              <td class="px-4 py-4 whitespace-nowrap">
+              <td class="px-4 py-4 align-middle whitespace-nowrap">
                 <div v-if="log.checkin_time" class="flex flex-col">
                   <span class="text-sm font-bold text-primary tabular-nums">{{ log.checkin_time.split(', ')[1] ?? log.checkin_time }}</span>
                   <span class="text-xs text-muted">{{ log.checkin_time.split(', ')[0] }}</span>
@@ -124,35 +117,58 @@
                 <span v-else class="text-muted text-sm">–</span>
               </td>
               <!-- Waktu Keluar -->
-              <td v-if="hasCheckout" class="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
+              <td v-if="hasCheckout" class="px-4 py-4 align-middle whitespace-nowrap hidden sm:table-cell">
                 <div v-if="log.checkout_time" class="flex flex-col">
                   <span class="text-sm font-bold text-primary tabular-nums">{{ log.checkout_time.split(', ')[1] ?? log.checkout_time }}</span>
                   <span class="text-xs text-muted">{{ log.checkout_time.split(', ')[0] }}</span>
                 </div>
                 <span v-else class="text-muted text-sm">–</span>
               </td>
-              <td class="px-4 py-4 text-center">
-                <div class="flex flex-col items-center gap-1">
+              <td class="px-4 py-4 align-middle text-left whitespace-nowrap">
+                <div class="flex flex-col items-start gap-1">
                   <span class="badge" :class="log.status === 'checkout' ? 'badge-checked_out' : 'badge-checked_in'">
                     {{ log.status === 'checkout' ? 'Keluar' : 'Masuk' }}
                   </span>
-                  <span v-if="log.time_range" class="text-[10px] text-muted font-bold tabular-nums">{{ log.time_range }}</span>
+                  <span v-if="log.time_range" class="text-[10px] text-slate-400 font-medium ml-1 tabular-nums">{{ log.time_range }}</span>
                 </div>
               </td>
-              <td class="px-4 py-4 text-center hidden sm:table-cell">
-                <span class="text-xs font-bold uppercase text-muted">{{ log.method }}</span>
+              <td class="px-4 py-4 align-middle text-left hidden sm:table-cell whitespace-nowrap">
+                <span 
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10.5px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap"
+                  :class="{
+                    'bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-500/20': log.method.includes('QR'),
+                    'bg-purple-50 text-purple-600 ring-1 ring-inset ring-purple-500/20': log.method.includes('TOKEN'),
+                    'bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-500/20': log.method.includes('MANUAL') && !log.method.includes('QR') && !log.method.includes('TOKEN'),
+                    'bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/20': !log.method.includes('QR') && !log.method.includes('TOKEN') && !log.method.includes('MANUAL')
+                  }"
+                  :title="
+                    log.method.includes('QR') ? 'Scan via QR Code' : 
+                    (log.method.includes('TOKEN') ? 'Input Token Manual' : 
+                    (log.method.includes('MANUAL') ? 'Check-in oleh Admin' : ''))
+                  "
+                >
+                  {{ log.method }}
+                </span>
               </td>
             </tr>
             <tr v-if="localCheckins.length === 0">
-              <td colspan="7" class="empty-row">Belum ada data kedatangan.</td>
+              <td :colspan="hasCheckout ? 7 : 6" class="px-8 py-24 text-center">
+                <div class="flex flex-col items-center">
+                  <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-300 mb-4">
+                    <ClockIcon class="w-8 h-8" />
+                  </div>
+                  <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Belum ada data kedatangan</p>
+                  <p class="text-xs text-slate-400">Log tamu yang hadir akan muncul di sini secara real-time.</p>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="text-sm text-gray-500 font-medium">
-          Menampilkan <span class="font-bold text-gray-700">{{ checkins.from || 0 }}</span> - <span class="font-bold text-gray-700">{{ checkins.to || 0 }}</span> dari <span class="font-bold text-gray-700">{{ liveTotal ?? checkins.total }}</span> check-in
+      <div class="px-6 py-4 bg-gray-50/50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-sm text-gray-500 dark:text-slate-400 font-medium">
+          Menampilkan <span class="font-bold text-gray-700 dark:text-slate-300">{{ checkins.from || 0 }}</span> - <span class="font-bold text-gray-700 dark:text-slate-300">{{ checkins.to || 0 }}</span> dari <span class="font-bold text-gray-700 dark:text-slate-300">{{ liveTotal ?? checkins.total }}</span> check-in
         </div>
         <Pagination :links="checkins.links" />
       </div>
@@ -161,17 +177,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import EventTabs from '@/Components/EventTabs.vue';
 import { debounce } from 'lodash-es';
 import { 
   MagnifyingGlassIcon, 
   CalendarIcon, 
   ListBulletIcon, 
   ArrowDownTrayIcon, 
-  DocumentTextIcon 
+  DocumentTextIcon,
+  ClockIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -179,7 +197,23 @@ const props = defineProps({
   events: Array,
   filters: Object,
   hasCheckout: Boolean,
-  server_time: String,  // waktu server saat halaman diload
+  server_time: String,
+  active_event: Object,
+});
+
+const dynamicBreadcrumbs = computed(() => {
+  if (props.active_event) {
+    return [
+      { label: 'Dashboard', href: route('dashboard') },
+      { label: 'Event', href: route('events.index') },
+      { label: props.active_event.name, href: route('events.show', props.active_event.id) },
+      { label: 'Log Kedatangan' }
+    ];
+  }
+  return [
+    { label: 'Dashboard', href: route('dashboard') },
+    { label: 'Log Kedatangan' }
+  ];
 });
 
 // --- Filter state ---
@@ -275,7 +309,11 @@ function applyNewEntries() {
   incoming.forEach(entry => existingMap.set(entry.id, entry));
 
   const merged = Array.from(existingMap.values())
-    .sort((a, b) => new Date(b.updated_at ?? 0) - new Date(a.updated_at ?? 0))
+    .sort((a, b) => {
+      const dateA = new Date(typeof a.updated_at === 'string' ? a.updated_at.replace(' ', 'T') : (a.updated_at ?? 0));
+      const dateB = new Date(typeof b.updated_at === 'string' ? b.updated_at.replace(' ', 'T') : (b.updated_at ?? 0));
+      return dateB - dateA;
+    })
     .slice(0, props.checkins.per_page || 15);
 
   localCheckins.value = merged;
@@ -337,6 +375,11 @@ const onFilterChange = debounce(() => {
     replace: true,
   });
 }, 300);
+
+function setEventFilter(id) {
+  eventId.value = id;
+  onFilterChange();
+}
 </script>
 
 <style scoped>

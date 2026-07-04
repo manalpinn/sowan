@@ -29,22 +29,31 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
 
     public function collection(Collection $rows)
     {
-        \Illuminate\Support\Facades\Log::info("GuestsImport collection called with " . $rows->count() . " rows.");
-        if ($rows->count() > 0) {
-            \Illuminate\Support\Facades\Log::info("First row keys: " . implode(', ', array_keys($rows->first()->toArray())));
+        if ($rows->isEmpty()) {
+            throw new \Exception("File excel kosong.");
+        }
+
+        $firstRowKeys = $rows->first()->mapWithKeys(fn($value, $key) => [
+            strtolower(trim(str_replace([' ', '-'], '_', $key))) => $value
+        ])->keys()->toArray();
+
+        $requiredColumns = ['nama', 'whatsapp', 'email', 'tipe', 'meja'];
+        $missingColumns = array_diff($requiredColumns, $firstRowKeys);
+
+        if (!empty($missingColumns)) {
+            throw new \Exception("Format kolom tidak sesuai ketentuan. Kolom yang hilang: " . implode(', ', $missingColumns) . ". Pastikan header tabel di baris pertama persis: nama, whatsapp, email, tipe, meja.");
         }
 
         foreach ($rows as $rowIndex => $row) {
-            // Normalize keys: strip whitespace, lowercase
             $row = $row->mapWithKeys(fn($value, $key) => [
-                strtolower(trim(str_replace([' ', '-', '_'], '_', $key))) => $value
+                strtolower(trim(str_replace([' ', '-'], '_', $key))) => $value
             ]);
 
-            $name = trim($row->get('nama') ?? $row->get('name') ?? $row->get('nama_tamu') ?? $row->get('fullname') ?? $row->get('full_name') ?? $row->get('tamu') ?? '');
-            $phone = trim($row->get('whatsapp') ?? $row->get('no_whatsapp') ?? $row->get('phone') ?? $row->get('nomor_whatsapp') ?? $row->get('telp') ?? $row->get('telepon') ?? $row->get('hp') ?? $row->get('handphone') ?? $row->get('wa') ?? $row->get('phone_number') ?? '');
-            $email = trim($row->get('email') ?? $row->get('surel') ?? $row->get('mail') ?? '');
-            $type  = trim($row->get('tipe') ?? $row->get('type') ?? $row->get('kategori') ?? $row->get('category') ?? $row->get('status') ?? 'Regular');
-            $tableNumber = trim($row->get('meja') ?? $row->get('table') ?? $row->get('nomor_meja') ?? $row->get('no_meja') ?? $row->get('table_no') ?? $row->get('meja_no') ?? '');
+            $name = trim($row->get('nama') ?? '');
+            $phone = trim($row->get('whatsapp') ?? '');
+            $email = trim($row->get('email') ?? '');
+            $type  = trim($row->get('tipe') ?? 'Regular');
+            $tableNumber = trim($row->get('meja') ?? '');
 
             if (empty($name)) {
                 $this->skipped++;

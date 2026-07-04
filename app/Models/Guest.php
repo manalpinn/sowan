@@ -20,6 +20,7 @@ class Guest extends Model
         'type',
         'table_number',
         'whatsapp_status',
+        'whatsapp_message_id',
         'wa_sent_at',
         'qr_code',
         'rsvp_status',

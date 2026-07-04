@@ -52,7 +52,18 @@
           </div>
           
           <div class="scanner-container relative overflow-hidden bg-slate-900">
-            <div v-if="cameraError" class="scanner-error p-10">
+            <div v-if="isEventInactive" class="scanner-error p-10">
+              <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ExclamationTriangleIcon class="w-8 h-8" stroke-width="2.5" />
+              </div>
+              <p class="font-black text-white text-lg tracking-tight">
+                {{ selectedEvent?.is_active === false ? 'Event Tidak Aktif' : (isEventExpired ? 'Event Telah Berakhir' : 'Event Belum Dimulai') }}
+              </p>
+              <p class="text-slate-400 text-sm mt-2 mb-6">
+                {{ selectedEvent?.is_active === false ? 'Event ini sedang dinonaktifkan oleh Admin.' : (isEventExpired ? 'Check-in dan check-out tidak lagi tersedia.' : 'Check-in dan check-out belum tersedia.') }}
+              </p>
+            </div>
+            <div v-else-if="cameraError" class="scanner-error p-10">
               <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ExclamationTriangleIcon class="w-8 h-8" stroke-width="2.5" />
               </div>
@@ -61,10 +72,10 @@
               <button @click="startScanner" class="btn btn-primary rounded-xl px-8 py-3 font-bold">Coba Lagi</button>
             </div>
             
-            <div id="reader" v-show="!cameraError" class="w-full"></div>
+            <div id="reader" v-show="!cameraError && !isEventInactive" class="w-full"></div>
             
             <!-- Scanner Visual Overlay -->
-            <div class="scanner-mask" v-if="isScanning && !cameraError">
+            <div class="scanner-mask" v-if="isScanning && !cameraError && !isEventInactive">
               <div class="mask-top"></div>
               <div class="mask-bottom"></div>
               <div class="mask-left"></div>
@@ -111,7 +122,7 @@
               </div>
               <p class="text-xs font-bold text-slate-500">Scan terjeda otomatis selama 2 detik untuk keamanan.</p>
             </div>
-            <button @click="toggleScanner" :class="['btn btn-sm h-10 px-5 font-black uppercase tracking-wider text-[11px] rounded-xl transition-all', isScanning ? 'btn-danger' : 'btn-primary']">
+            <button @click="toggleScanner" :class="['btn btn-sm h-10 px-5 font-black uppercase tracking-wider text-[11px] rounded-xl transition-all', isScanning ? 'btn-danger' : 'btn-primary']" :disabled="isEventInactive">
               {{ isScanning ? 'Stop Kamera' : 'Buka Kamera' }}
             </button>
           </div>
@@ -124,7 +135,7 @@
               <div class="h-9 w-9 rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/30 flex items-center justify-center">
                 <PencilSquareIcon class="h-5 w-5" stroke-width="2.5" />
               </div>
-              <span class="text-sm font-black text-slate-900 tracking-tight">Input Token Manual</span>
+              <span class="text-sm font-black text-slate-900 tracking-tight">Metode Token</span>
             </div>
           </div>
           <div class="card-body pt-4">
@@ -136,11 +147,12 @@
                 placeholder="ABC12"
                 maxlength="5"
                 required
+                :disabled="isEventInactive"
               >
               <button 
                 type="submit" 
                 class="btn btn-primary h-12 px-8 font-black uppercase tracking-wider"
-                :disabled="processingToken || cooldownActive"
+                :disabled="processingToken || cooldownActive || isEventInactive"
               >
                 {{ processingToken ? '...' : 'Proses' }}
               </button>
@@ -184,6 +196,7 @@
                 placeholder="Nama tamu..."
                 @input="onSearchInput"
                 autocomplete="off"
+                :disabled="isEventInactive"
               >
 
               <!-- Clear button -->
@@ -234,18 +247,17 @@
 
                 <!-- Action button -->
                 <button
+                  v-if="!g.checkin_time || g.checkin_status === 'checkout'"
                   @click="processManual(g.id)"
                   class="search-action-btn"
-                  :class="g.checkin_status === 'checkout' ? 'action-reincheck' : (g.checkin_time ? 'action-checkout' : 'action-checkin')"
-                  :disabled="processingManual === g.id || cooldownActive"
+                  :class="[g.checkin_status === 'checkout' ? 'action-reincheck' : 'action-checkin', isEventInactive ? 'opacity-50 cursor-not-allowed' : '']"
+                  :disabled="processingManual === g.id || cooldownActive || isEventInactive"
                 >
                   <ArrowPathIcon v-if="processingManual === g.id" class="animate-spin w-4 h-4" stroke-width="2.5" />
                   <template v-else>
-                    <ArrowRightOnRectangleIcon v-if="!g.checkin_time" class="w-3.5 h-3.5" stroke-width="2.5" />
-                    <ArrowLeftOnRectangleIcon v-else-if="g.checkin_status !== 'checkout'" class="w-3.5 h-3.5" stroke-width="2.5" />
-                    <ArrowRightOnRectangleIcon v-else class="w-3.5 h-3.5" stroke-width="2.5" />
+                    <ArrowRightOnRectangleIcon class="w-3.5 h-3.5" stroke-width="2.5" />
                     <span class="text-[10px] font-black uppercase tracking-wider">
-                      {{ g.checkin_status === 'checkout' ? 'In Lagi' : (g.checkin_time ? 'Out' : 'Check In') }}
+                      {{ g.checkin_status === 'checkout' ? 'In Lagi' : 'Check In' }}
                     </span>
                   </template>
                 </button>
@@ -312,12 +324,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import axios from 'axios';
 import { debounce } from 'lodash-es';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Html5Qrcode } from 'html5-qrcode';
 import { notify } from '@/Utils/SweetAlert';
+import { SafeStorage } from '@/Utils/Storage';
 import { 
   ArrowPathIcon, 
   CameraIcon, 
@@ -341,17 +354,22 @@ const props = defineProps({
 });
 
 const selectedEventId = ref(props.eventId || (props.events?.length > 0 ? props.events[0].id : null));
+const selectedEvent = computed(() => props.events?.find(e => e.id === selectedEventId.value));
+const isEventExpired = computed(() => selectedEvent.value?.is_expired || false);
+const isEventNotStarted = computed(() => selectedEvent.value?.is_not_started || false);
+const isEventInactive = computed(() => selectedEvent.value?.is_inactive || false);
+
 const html5QrCode = ref(null);
 const isScanning = ref(false);
 const lastResult = ref(null);
 const history = ref([]);
 const cameraError = ref(null);
 
-const isOfflineMode = ref(JSON.parse(localStorage.getItem('offline_mode_active') || 'false'));
+const isOfflineMode = ref(SafeStorage.parseJson(SafeStorage.getItem('offline_mode_active'), false));
 const downloading = ref(false);
 const syncing = ref(false);
 const offlineGuests = ref([]);
-const offlineQueue = ref(JSON.parse(localStorage.getItem('offline_queue') || '[]'));
+const offlineQueue = ref(SafeStorage.parseJson(SafeStorage.getItem('offline_queue'), []));
 
 const manualToken = ref('');
 const processingToken = ref(false);
@@ -363,37 +381,58 @@ const processingManual = ref(null);
 const cooldownActive = ref(false);
 const cooldownTimer = ref(0);
 const lastScannedToken = ref(null);
+let isUnmounted = false;
 
 onMounted(() => {
+  isUnmounted = false;
   startScanner();
   loadOfflineData();
 });
 
 onBeforeUnmount(() => {
+  isUnmounted = true;
   stopScanner();
 });
 
 watch(isOfflineMode, (newVal) => {
-  localStorage.setItem('offline_mode_active', JSON.stringify(newVal));
+  SafeStorage.setItem('offline_mode_active', JSON.stringify(newVal));
+  if (newVal) {
+    searchResults.value = []; // clear search on toggle
+    searchQuery.value = '';
+  }
 });
 
 watch(selectedEventId, () => {
   loadOfflineData();
+  if (isEventInactive.value && isScanning.value) {
+    stopScanner();
+  } else if (!isEventInactive.value && !isScanning.value) {
+    startScanner();
+  }
 });
 
 const loadOfflineData = () => {
   if (!selectedEventId.value) return;
-  const data = localStorage.getItem(`offline_data_${selectedEventId.value}`);
-  offlineGuests.value = data ? JSON.parse(data) : [];
+  const data = SafeStorage.getItem(`offline_data_${selectedEventId.value}`);
+  offlineGuests.value = SafeStorage.parseJson(data, []);
 };
 
 const downloadForOffline = async () => {
   if (!selectedEventId.value) return notify.error('Pilih event terlebih dahulu.');
+  
+  const result = await notify.confirm(
+    'Download Database Tamu?',
+    'Tindakan ini akan mendownload database tamu ke browser untuk mode offline. Lanjutkan?',
+    'Ya, Download',
+    'info'
+  );
+  if (!result.isConfirmed) return;
+
   downloading.value = true;
   try {
     const response = await axios.post(route('scanner.offline.download'), { event_id: selectedEventId.value });
     offlineGuests.value = response.data.guests;
-    localStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(response.data.guests));
+    SafeStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(response.data.guests));
     notify.success('Download Berhasil!', `Berhasil mendownload ${response.data.guests.length} data tamu untuk offline.`);
   } catch (err) { 
     console.error(err);
@@ -406,6 +445,14 @@ const syncOfflineData = async () => {
   if (offlineQueue.value.length === 0) return;
   if (!selectedEventId.value) return notify.error('Pilih event terlebih dahulu.');
   
+  const result = await notify.confirm(
+    'Sinkronisasi Data Offline?',
+    `Apakah Anda yakin ingin mengirim ${offlineQueue.value.length} data kehadiran ke server? Pastikan koneksi internet Anda stabil.`,
+    'Ya, Sinkronisasikan',
+    'info'
+  );
+  if (!result.isConfirmed) return;
+  
   syncing.value = true;
   try {
     const response = await axios.post(route('scanner.offline.sync'), { 
@@ -415,7 +462,7 @@ const syncOfflineData = async () => {
     
     if (response.data.success) {
       offlineQueue.value = [];
-      localStorage.setItem('offline_queue', JSON.stringify([]));
+      SafeStorage.setItem('offline_queue', JSON.stringify([]));
       notify.success('Sinkronisasi Berhasil!', `${response.data.results.length} data telah terkirim.`);
     } else {
       throw new Error(response.data.message || 'Gagal sinkronisasi.');
@@ -429,6 +476,7 @@ const syncOfflineData = async () => {
 };
 
 const startScanner = () => {
+  if (isEventInactive.value) return;
   cameraError.value = null;
   html5QrCode.value = new Html5Qrcode("reader");
   const config = { 
@@ -438,7 +486,12 @@ const startScanner = () => {
   };
   
   html5QrCode.value.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-    .then(() => isScanning.value = true)
+    .then(() => {
+      isScanning.value = true;
+      if (isUnmounted) {
+        stopScanner();
+      }
+    })
     .catch(err => {
       console.error(err);
       cameraError.value = "Kamera tidak dapat diakses.";
@@ -447,12 +500,20 @@ const startScanner = () => {
 };
 
 const stopScanner = async () => {
-  if (html5QrCode.value && html5QrCode.value.isScanning) {
+  if (html5QrCode.value) {
     try {
       await html5QrCode.value.stop();
-      isScanning.value = false;
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error('Stop scanner error:', e); 
+    }
+    
+    try {
+      html5QrCode.value.clear();
+    } catch (e) {}
+    
+    html5QrCode.value = null;
   }
+  isScanning.value = false;
 };
 
 const toggleScanner = () => isScanning.value ? stopScanner() : startScanner();
@@ -464,12 +525,12 @@ const onScanSuccess = (decodedText) => {
   // Anti-spam: check if it's the same token as last time within a short window
   if (decodedText === lastScannedToken.value && lastResult.value) return;
 
-  processScan(decodedText);
+  processScan(decodedText, 'qr');
 };
 
 const onScanFailure = () => {};
 
-const processScan = async (qrCode) => {
+const processScan = async (qrCode, method = 'qr') => {
   if (!selectedEventId.value) return handleError({ message: 'Pilih event terlebih dahulu.' });
   
   // Audio Feedback
@@ -486,11 +547,15 @@ const processScan = async (qrCode) => {
 
   lastScannedToken.value = qrCode;
 
-  if (isOfflineMode.value) return processOfflineScan(qrCode);
+  if (isOfflineMode.value) return processOfflineScan(qrCode, method);
 
   lastResult.value = { processing: true, message: 'Memproses...' };
   try {
-    const response = await axios.post(route('scanner.scan'), { qr_code: qrCode, event_id: selectedEventId.value });
+    const response = await axios.post(route('scanner.scan'), { 
+      qr_code: qrCode, 
+      event_id: selectedEventId.value,
+      method: method
+    });
     handleSuccess(response.data);
     startCooldown();
   } catch (err) {
@@ -499,7 +564,7 @@ const processScan = async (qrCode) => {
   }
 };
 
-const processOfflineScan = (qrCode) => {
+const processOfflineScan = (qrCode, method = 'qr') => {
   // Check in offline database
   const guest = offlineGuests.value.find(g => g.qr_code === qrCode);
   
@@ -508,9 +573,25 @@ const processOfflineScan = (qrCode) => {
   }
 
   // Check if already in queue to prevent double scan offline
-  if (offlineQueue.value.some(q => q.qr_code === qrCode)) {
-    return handleError({ message: 'Tamu sudah ada di antrean Sinkronisasi.' });
+  // except for checkout which is allowed, but for simplicity of UI we just let the backend handle duplicates/checkout
+  // Since offline doesn't know attendance type perfectly, we just push it.
+  // We'll allow multiple pushes to queue for the same qr, as long as it's not spam
+  
+  // Optimistic UI update
+  const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  if (!guest.checkin_time) {
+      guest.checkin_time = timeStr;
+      guest.checkin_status = 'checkin';
+  } else if (guest.checkin_status !== 'checkout') {
+      guest.checkout_time = timeStr;
+      guest.checkin_status = 'checkout';
+  } else {
+      guest.checkin_time = timeStr;
+      guest.checkout_time = null;
+      guest.checkin_status = 'checkin';
   }
+  
+  SafeStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(offlineGuests.value));
 
   const result = { 
     guest, 
@@ -519,12 +600,13 @@ const processOfflineScan = (qrCode) => {
   
   offlineQueue.value.push({ 
     qr_code: qrCode, 
-    time: new Date().toISOString() 
+    time: new Date().toISOString(),
+    method: method // simpan method offline juga
   });
   
-  localStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value));
+  SafeStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value));
   handleSuccess(result);
-  startCooldown(2000); // 2 second delay for offline to be sure
+  startCooldown(1500);
 };
 
 const startCooldown = (ms = 2000) => {
@@ -545,7 +627,7 @@ const handleSuccess = (data) => {
   lastResult.value = { success: true, message: data.message };
   history.value.unshift({ 
     success: true, 
-    name: data.guest.name, 
+    name: data.guest?.name || '-', 
     message: data.message, 
     time: new Date().toLocaleTimeString('id-ID'), 
     guest: data.guest 
@@ -578,7 +660,7 @@ const processManualToken = async () => {
   
   processingToken.value = true;
   try { 
-    await processScan(token); 
+    await processScan(token, 'token'); 
     manualToken.value = ''; 
   } finally { 
     processingToken.value = false; 
@@ -591,6 +673,16 @@ const onSearchInput = debounce(async () => {
     return; 
   }
   isSearching.value = true;
+  
+  if (isOfflineMode.value) {
+    const q = searchQuery.value.toLowerCase();
+    searchResults.value = offlineGuests.value
+      .filter(g => g.name.toLowerCase().includes(q))
+      .slice(0, 10);
+    isSearching.value = false;
+    return;
+  }
+  
   try {
     const response = await axios.post(route('scanner.search'), { 
       name: searchQuery.value, 
@@ -608,6 +700,16 @@ const processManual = async (guestId) => {
   if (cooldownActive.value) return;
   
   processingManual.value = guestId;
+  
+  if (isOfflineMode.value) {
+    const guest = searchResults.value.find(g => g.id === guestId);
+    if (guest) {
+      processOfflineScan(guest.qr_code, 'manual');
+    }
+    processingManual.value = null;
+    return;
+  }
+
   try {
     const response = await axios.post(route('scanner.manual'), { guest_id: guestId });
     handleSuccess(response.data);

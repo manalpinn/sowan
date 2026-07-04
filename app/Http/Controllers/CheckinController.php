@@ -13,25 +13,40 @@ use Inertia\Response as InertiaResponse;
 
 class CheckinController extends Controller
 {
-    public function index(Request $request): InertiaResponse
+    public function index(Request $request)
     {
         $user = $request->user();
         $query = Checkin::query()->with(['guest', 'event']);
 
-        // Scope to event for admin_event
-        if ($user->isAdminEvent()) {
-            $query->where('event_id', $user->event_id);
+        $activeEvent = null;
+        $managedEventIds = $user->isAdminEvent() ? $user->getManagedEventIds() : [];
+
+        if (!$request->filled('event_id')) {
+            if ($user->isSuperAdmin()) {
+                return redirect()->route('events.index')->with('error', 'Silakan pilih event terlebih dahulu.');
+            } else {
+                if (empty($managedEventIds)) {
+                    return redirect()->route('dashboard')->with('error', 'Anda belum ditugaskan ke event mana pun.');
+                }
+                $eventId = $managedEventIds[0];
+                return redirect()->route('checkins.index', array_merge($request->all(), ['event_id' => $eventId]));
+            }
         }
+
+        $eventId = $request->event_id;
+
+        if ($user->isAdminEvent() && !in_array($eventId, $managedEventIds)) {
+            abort(403, 'Anda tidak memiliki akses ke event ini.');
+        }
+
+        $query->where('event_id', $eventId);
+        $activeEvent = Event::findOrFail($eventId);
 
         // Filters
         if ($request->filled('search')) {
             $query->whereHas('guest', function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%");
             });
-        }
-
-        if ($request->filled('event_id') && $user->isSuperAdmin()) {
-            $query->where('event_id', $request->event_id);
         }
 
         if ($request->filled('date')) {
@@ -54,21 +69,22 @@ class CheckinController extends Controller
                     ? $c->checkin_time->format('H:i') . ' – ' . $c->checkout_time->format('H:i')
                     : null,
                 'status' => $c->status,
-                'method' => $c->method,
+                'method' => $c->formatted_method,
             ]);
 
         $events = $user->isSuperAdmin()
             ? Event::select('id', 'name')->orderBy('name')->get()
-            : collect();
+            : $user->events()->select('events.id', 'events.name')->orderBy('events.name')->get();
 
         $hasCheckout = true;
-        if ($user->isAdminEvent()) {
-            $hasCheckout = $user->event->attendance_type === 'checkin_checkout';
+        if ($activeEvent) {
+            $hasCheckout = $activeEvent->attendance_type === 'checkin_checkout';
         }
 
         return Inertia::render('Checkins/Index', [
             'checkins'    => $checkins,
             'events'      => $events,
+            'active_event' => $activeEvent ? ['id' => $activeEvent->id, 'name' => $activeEvent->name] : null,
             'hasCheckout' => $hasCheckout,
             'filters'     => $request->only(['search', 'event_id', 'per_page', 'date']),
             'server_time' => now()->toISOString(), // titik awal polling (timezone server)
@@ -87,9 +103,12 @@ class CheckinController extends Controller
         $query = Checkin::query()->with(['guest', 'event']);
 
         if ($user->isAdminEvent()) {
-            $query->where('event_id', $user->event_id);
+            if (!$request->filled('event_id') || !in_array($request->event_id, $user->getManagedEventIds())) {
+                abort(403, 'Event ID tidak valid atau akses ditolak.');
+            }
+            $query->where('event_id', $request->event_id);
         }
-        if ($request->filled('event_id') && $user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() && $request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
         if ($request->filled('date')) {
@@ -124,7 +143,7 @@ class CheckinController extends Controller
                     ? $c->checkin_time->format('H:i') . ' – ' . $c->checkout_time->format('H:i')
                     : null,
                 'status'        => $c->status,
-                'method'        => $c->method,
+                'method'        => $c->formatted_method,
                 'updated_at'    => $c->updated_at->toISOString(),
             ]);
 
@@ -141,9 +160,12 @@ class CheckinController extends Controller
         $query = Checkin::query()->with(['guest', 'event']);
 
         if ($user->isAdminEvent()) {
-            $query->where('event_id', $user->event_id);
+            if (!$request->filled('event_id') || !in_array($request->event_id, $user->getManagedEventIds())) {
+                abort(403, 'Event ID tidak valid atau akses ditolak.');
+            }
+            $query->where('event_id', $request->event_id);
         }
-        if ($request->filled('event_id') && $user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() && $request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
         if ($request->filled('date')) {
@@ -173,7 +195,7 @@ class CheckinController extends Controller
                     $c->checkin_time?->format('d/m/Y H:i') ?? '-',
                     $c->checkout_time?->format('d/m/Y H:i') ?? '-',
                     $c->status === 'checkout' ? 'Keluar' : 'Masuk',
-                    strtoupper($c->method ?? '-'),
+                    $c->formatted_method,
                 ]);
             }
             fclose($file);
@@ -188,9 +210,12 @@ class CheckinController extends Controller
         $query = Checkin::query()->with(['guest', 'event']);
 
         if ($user->isAdminEvent()) {
-            $query->where('event_id', $user->event_id);
+            if (!$request->filled('event_id') || !in_array($request->event_id, $user->getManagedEventIds())) {
+                abort(403, 'Event ID tidak valid atau akses ditolak.');
+            }
+            $query->where('event_id', $request->event_id);
         }
-        if ($request->filled('event_id') && $user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() && $request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
         if ($request->filled('date')) {
@@ -205,7 +230,7 @@ class CheckinController extends Controller
             'checkin_time' => $c->checkin_time?->format('d M Y, H:i') ?? '-',
             'checkout_time' => $c->checkout_time?->format('d M Y, H:i') ?? '-',
             'status' => $c->status,
-            'method' => strtoupper($c->method ?? '-'),
+            'method' => $c->formatted_method,
         ]);
 
         $pdf = Pdf::loadView('pdf.attendance-log', [

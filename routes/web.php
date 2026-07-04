@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/invitation/{qr_code}', [\App\Http\Controllers\PublicController::class, 'invitation'])->name('public.invitation');
 Route::post('/rsvp/{qr_code}', [\App\Http\Controllers\PublicController::class, 'rsvp'])->name('public.rsvp');
 
+
 // Backward compatibility or direct checkin
 Route::get('/checkin/{qr_code}', [ScanController::class, 'checkin'])->name('checkin.public');
 Route::post('/self-checkin', [ScanController::class, 'selfCheckin'])->name('checkin.self');
@@ -24,15 +25,25 @@ Route::get('/', function () {
 });
 
 // Authenticated routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'require.otp'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Event Management (superadmin only)
+    // User & Event Management (superadmin only for create, store, destroy)
     Route::middleware(['role:superadmin'])->group(function () {
-        Route::resource('events', EventController::class);
+        Route::get('events/search', [EventController::class, 'search'])->name('events.search');
+        Route::post('events/bulk-delete', [EventController::class, 'bulkDelete'])->name('events.bulk-delete');
+        Route::resource('events', EventController::class)->only(['create', 'store', 'destroy']);
+        
+        Route::post('users/{user}/events', [UserController::class, 'syncEvents'])->name('users.events.sync');
+        Route::post('users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
         Route::resource('users', UserController::class);
+    });
+
+    // Event Management (accessible to admins who own the event)
+    Route::middleware(['role:superadmin|admin_event|admin', 'event.admin'])->group(function () {
+        Route::resource('events', EventController::class)->only(['index', 'show', 'edit', 'update']);
     });
 
     // Guests - Accessible to both superadmin and admin/admin_event
