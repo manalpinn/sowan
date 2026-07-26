@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-100 font-sans text-slate-800 antialiased py-8 px-4 flex items-center justify-center" :style="{ '--theme-primary': event.theme_color || '#0f172a', '--theme-contrast': getContrastColor(event.theme_color || '#0f172a') }">
+  <div class="min-h-screen bg-slate-100 font-sans text-slate-800 antialiased py-8 px-4 flex items-center justify-center" :style="{ '--theme-primary': event.theme_color || '#0f172a', '--theme-contrast': getContrastColor(event.theme_color || '#0f172a', event.custom_text_color), '--theme-text': getThemeTextColor(event.theme_color || '#0f172a', event.custom_text_color) }">
     
     <div class="max-w-2xl w-full grid grid-cols-1 md:grid-cols-12 bg-white shadow-xl rounded-xl overflow-hidden">
       
@@ -127,7 +127,7 @@
         <div>
           <h3 class="text-lg font-bold text-slate-900 mb-1">Access Token</h3>
           <p class="text-sm text-slate-500 mb-4">Please present this QR code at the reception desk.</p>
-          <p class="font-mono text-xl tracking-widest font-bold" :style="{ color: 'var(--theme-primary)' }">{{ guest.qr_code }}</p>
+          <p class="font-mono text-xl tracking-widest font-bold" :style="{ color: 'var(--theme-text)' }">{{ guest.qr_code }}</p>
         </div>
         
         <div class="mt-4 md:mt-0 relative z-10 flex shrink-0">
@@ -171,7 +171,8 @@ const rsvpOptions = [
   { value: 'declined', label: 'Decline' },
 ];
 
-const getContrastColor = (hexColor) => {
+const getContrastColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
   if (!hexColor) return '#ffffff';
   const hex = hexColor.replace('#', '');
   if (hex.length !== 6) return '#ffffff';
@@ -180,6 +181,19 @@ const getContrastColor = (hexColor) => {
   const b = parseInt(hex.substr(4, 2), 16);
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return (yiq >= 128) ? '#1e293b' : '#ffffff';
+};
+
+const getThemeTextColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
+  if (!hexColor) return '#0f172a';
+  const hex = hexColor.replace('#', '');
+  if (hex.length !== 6) return '#0f172a';
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  // If the color is too bright, return a dark fallback color for readability on white background
+  return (yiq >= 128) ? '#1e293b' : hexColor;
 };
 
 const submitRsvp = async () => {

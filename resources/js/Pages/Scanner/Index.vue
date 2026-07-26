@@ -7,14 +7,14 @@
       <!-- SCANNER SECTION -->
       <div class="space-y-6">
         <!-- Connectivity & Sync Info -->
-        <div class="flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all duration-500" :class="isOfflineMode ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'">
+        <div class="flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all duration-500" :class="isOfflineMode ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800' : 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800'">
           <div class="flex items-center gap-3">
             <div :class="['h-3 w-3 rounded-full', isOfflineMode ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]']"></div>
             <div>
-              <p class="text-xs font-black uppercase tracking-widest" :class="isOfflineMode ? 'text-amber-800' : 'text-emerald-800'">
+              <p class="text-xs font-black uppercase tracking-widest" :class="isOfflineMode ? 'text-amber-800 dark:text-amber-400' : 'text-emerald-800 dark:text-emerald-400'">
                 Mode {{ isOfflineMode ? 'Offline' : 'Online' }}
               </p>
-              <p class="text-[10px] font-medium text-slate-500">{{ isOfflineMode ? 'Menyimpan data di browser (Lokal)' : 'Terhubung langsung ke Cloud' }}</p>
+              <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">{{ isOfflineMode ? 'Menyimpan data di browser (Lokal)' : 'Terhubung langsung ke Cloud' }}</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -33,21 +33,40 @@
           </div>
         </div>
 
-        <div class="card overflow-hidden border-0 shadow-2xl shadow-slate-200/50">
-          <div class="card-header bg-slate-50/80 backdrop-blur-sm border-b border-slate-100">
+        <div class="card overflow-hidden border-0 shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50">
+          <div class="card-header relative z-20 bg-slate-50/80 dark:bg-slate-900/50 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-3">
               <div class="h-9 w-9 rounded-xl bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center">
                 <CameraIcon class="h-5 w-5" stroke-width="2.5" />
               </div>
               <div>
-                <span class="block text-sm font-black text-slate-900 tracking-tight">Kamera Scanner</span>
-                <span class="block text-[10px] text-slate-500 font-bold uppercase tracking-widest">{{ isScanning ? 'Kamera Aktif' : 'Kamera Mati' }}</span>
+                <span class="block text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">Kamera Scanner</span>
+                <span class="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">{{ isScanning ? 'Kamera Aktif' : 'Kamera Mati' }}</span>
               </div>
             </div>
-            <div v-if="events.length > 1" class="flex items-center gap-2">
-               <select v-model="selectedEventId" class="form-select text-xs py-1.5 px-3 h-auto w-44 rounded-xl border-slate-200 bg-white font-bold">
-                 <option v-for="e in props.events" :key="e.id" :value="e.id">{{ e.name }}</option>
-               </select>
+            <div v-if="events.length > 1" class="relative" ref="eventDropdownRef">
+              <button @click.prevent="showEventDropdown = !showEventDropdown" class="form-select flex items-center justify-between text-xs py-1.5 px-3 h-auto w-56 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-slate-100 font-bold focus:ring-0 focus:outline-none">
+                <span class="truncate">{{ selectedEvent?.name || 'Pilih Event' }}</span>
+                <ChevronDownIcon class="w-4 h-4 ml-2 shrink-0 text-slate-400" />
+              </button>
+              
+              <!-- Dropdown -->
+              <div v-if="showEventDropdown" class="absolute z-50 top-full right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transform transition-all origin-top-right">
+                <div class="p-2 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div class="relative">
+                    <MagnifyingGlassIcon class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input type="text" v-model="eventSearchQuery" placeholder="Cari event..." class="w-full text-xs py-1.5 pl-8 pr-3 rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary text-slate-700 dark:text-slate-100 placeholder-slate-400" @click.stop>
+                  </div>
+                </div>
+                <div class="max-h-56 overflow-y-auto overscroll-contain">
+                  <div v-if="filteredEvents.length === 0" class="p-4 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    Event tidak ditemukan
+                  </div>
+                  <button v-for="e in filteredEvents" :key="e.id" @click.prevent="selectEvent(e.id)" class="w-full text-left px-3 py-2.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 dark:border-slate-700/50 last:border-0" :class="{'bg-primary/5 dark:bg-primary/10': e.id === selectedEventId}">
+                    <span class="font-bold truncate" :class="e.id === selectedEventId ? 'text-primary' : 'text-slate-700 dark:text-slate-200'">{{ e.name }}</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -115,12 +134,12 @@
             </div>
           </div>
           
-          <div class="card-footer p-5 bg-white border-t border-slate-100 flex justify-between items-center">
+          <div class="card-footer p-5 bg-white dark:bg-[#131121] border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-slate-50 rounded-lg">
-                <ShieldCheckIcon class="w-4 h-4 text-slate-400" />
+              <div class="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                <ShieldCheckIcon class="w-4 h-4 text-slate-400 dark:text-slate-500" />
               </div>
-              <p class="text-xs font-bold text-slate-500">Scan terjeda otomatis selama 2 detik untuk keamanan.</p>
+              <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Scan terjeda otomatis selama 2 detik untuk keamanan.</p>
             </div>
             <button @click="toggleScanner" :class="['btn btn-sm h-10 px-5 font-black uppercase tracking-wider text-[11px] rounded-xl transition-all', isScanning ? 'btn-danger' : 'btn-primary']" :disabled="isEventInactive">
               {{ isScanning ? 'Stop Kamera' : 'Buka Kamera' }}
@@ -129,13 +148,13 @@
         </div>
 
         <!-- Manual Token Input -->
-        <div class="card border-0 shadow-xl shadow-slate-200/40">
+        <div class="card border-0 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40">
           <div class="card-header border-b-0 pb-0">
             <div class="flex items-center gap-3">
               <div class="h-9 w-9 rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/30 flex items-center justify-center">
                 <PencilSquareIcon class="h-5 w-5" stroke-width="2.5" />
               </div>
-              <span class="text-sm font-black text-slate-900 tracking-tight">Metode Token</span>
+              <span class="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">Metode Token</span>
             </div>
           </div>
           <div class="card-body pt-4">
@@ -143,7 +162,7 @@
               <input 
                 type="text" 
                 v-model="manualToken" 
-                class="form-input flex-1 h-12 uppercase text-center font-black tracking-[0.5em] text-lg rounded-xl border-slate-200 focus:ring-amber-500 focus:border-amber-500" 
+                class="form-input flex-1 h-12 uppercase text-center font-black tracking-[0.5em] text-lg rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100 focus:ring-amber-500 focus:border-amber-500" 
                 placeholder="ABC12"
                 maxlength="5"
                 required
@@ -160,23 +179,23 @@
           </div>
         </div>
 
-        <div class="guest-search-card card border-0 shadow-xl shadow-slate-200/40">
+        <div class="guest-search-card card border-0 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40">
           <!-- Card Header -->
-          <div class="card-header border-b border-slate-100 bg-gradient-to-r from-sky-50 to-indigo-50">
+          <div class="card-header border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-900/20 dark:to-indigo-900/20">
             <div class="flex items-center gap-3">
               <!-- Icon: person with magnifier -->
               <div class="search-card-icon">
                 <UsersIcon class="h-5 w-5" />
               </div>
               <div>
-                <span class="text-sm font-black text-slate-900 tracking-tight">Cari Nama Tamu</span>
-                <span class="block text-[10px] text-slate-500 font-bold uppercase tracking-widest">Pencarian Cepat · Ketik minimal 2 huruf</span>
+                <span class="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">Cari Nama Tamu</span>
+                <span class="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Pencarian Cepat · Ketik minimal 2 huruf</span>
               </div>
             </div>
             <!-- Chip badge count -->
-            <div v-if="searchResults.length > 0" class="flex items-center gap-1.5 px-3 py-1 bg-sky-100 rounded-full">
+            <div v-if="searchResults.length > 0" class="flex items-center gap-1.5 px-3 py-1 bg-sky-100 dark:bg-sky-900/30 rounded-full">
               <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-              <span class="text-[11px] font-black text-sky-700">{{ searchResults.length }} ditemukan</span>
+              <span class="text-[11px] font-black text-sky-700 dark:text-sky-400">{{ searchResults.length }} ditemukan</span>
             </div>
           </div>
 
@@ -184,7 +203,7 @@
             <!-- Search Input -->
             <div class="search-input-wrapper">
               <!-- Left icon -->
-              <div class="search-input-icon">
+              <div class="search-input-icon dark:text-slate-400">
                 <MagnifyingGlassIcon v-if="!isSearching" class="w-5 h-5" stroke-width="2.5" />
                 <ArrowPathIcon v-else class="animate-spin w-5 h-5" stroke-width="2.5" />
               </div>
@@ -192,7 +211,7 @@
               <input
                 type="text"
                 v-model="searchQuery"
-                class="search-input-field"
+                class="search-input-field bg-white border-slate-200 text-slate-800 dark:bg-[#131121] dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500 focus:dark:border-indigo-500 focus:dark:ring-indigo-500/20"
                 placeholder="Nama tamu..."
                 @input="onSearchInput"
                 autocomplete="off"
@@ -203,7 +222,7 @@
               <button
                 v-if="searchQuery"
                 @click="searchQuery = ''; searchResults = []"
-                class="search-clear-btn"
+                class="search-clear-btn bg-slate-100 text-slate-400 dark:bg-slate-800 hover:dark:bg-rose-900/30 hover:dark:text-rose-400"
                 title="Hapus pencarian"
               >
                 <XMarkIcon class="w-4 h-4" stroke-width="2.5" />
@@ -217,26 +236,26 @@
               <div
                 v-for="g in searchResults"
                 :key="g.id"
-                class="search-result-item"
+                class="search-result-item dark:bg-[#131121] dark:border-slate-800 hover:dark:bg-slate-800/50 hover:dark:border-indigo-900/50"
               >
                 <!-- Avatar initial -->
-                <div class="search-result-avatar" :class="g.checkin_time ? (g.checkin_status === 'checkout' ? 'avatar-out' : 'avatar-in') : 'avatar-default'">
+                <div class="search-result-avatar dark:border-slate-700" :class="g.checkin_time ? (g.checkin_status === 'checked_out' ? 'avatar-out dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-900' : 'avatar-in dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-900') : 'avatar-default dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'">
                   {{ g.name?.charAt(0)?.toUpperCase() }}
                 </div>
 
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-black text-slate-900 text-sm truncate">{{ g.name }}</span>
-                    <span class="search-type-chip">{{ g.type }}</span>
+                    <span class="font-black text-slate-900 dark:text-slate-100 text-sm truncate">{{ g.name }}</span>
+                    <span class="search-type-chip dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">{{ g.type }}</span>
                   </div>
                   <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span class="inline-flex items-center gap-1 text-[10px] text-slate-400 font-bold">
                       <TableCellsIcon class="w-3 h-3" />
                       {{ g.table_number || 'TBA' }}
                     </span>
-                    <span v-if="g.checkin_time" class="inline-flex items-center gap-1 text-[10px] font-black uppercase" :class="g.checkin_status === 'checkout' ? 'text-rose-500' : 'text-emerald-500'">
-                      <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="g.checkin_status === 'checkout' ? 'bg-rose-400' : 'bg-emerald-400'"></span>
-                      {{ g.checkin_status === 'checkout' ? 'Sudah Keluar' : 'Sudah Masuk' }}
+                    <span v-if="g.checkin_time" class="inline-flex items-center gap-1 text-[10px] font-black uppercase" :class="g.checkin_status === 'checked_out' ? 'text-rose-500' : 'text-emerald-500'">
+                      <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="g.checkin_status === 'checked_out' ? 'bg-rose-400' : 'bg-emerald-400'"></span>
+                      {{ g.checkin_status === 'checked_out' ? 'Sudah Keluar' : 'Sudah Masuk' }}
                     </span>
                     <span v-else class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-300">
                       <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
@@ -247,17 +266,20 @@
 
                 <!-- Action button -->
                 <button
-                  v-if="!g.checkin_time || g.checkin_status === 'checkout'"
                   @click="processManual(g.id)"
                   class="search-action-btn"
-                  :class="[g.checkin_status === 'checkout' ? 'action-reincheck' : 'action-checkin', isEventInactive ? 'opacity-50 cursor-not-allowed' : '']"
+                  :class="[
+                    g.checkin_status === 'checked_in' ? 'action-checkout' : (g.checkin_status === 'checked_out' ? 'action-reincheck' : 'action-checkin'),
+                    isEventInactive ? 'opacity-50 cursor-not-allowed' : ''
+                  ]"
                   :disabled="processingManual === g.id || cooldownActive || isEventInactive"
                 >
                   <ArrowPathIcon v-if="processingManual === g.id" class="animate-spin w-4 h-4" stroke-width="2.5" />
                   <template v-else>
-                    <ArrowRightOnRectangleIcon class="w-3.5 h-3.5" stroke-width="2.5" />
+                    <ArrowRightOnRectangleIcon v-if="g.checkin_status !== 'checked_in'" class="w-3.5 h-3.5" stroke-width="2.5" />
+                    <ArrowLeftOnRectangleIcon v-else class="w-3.5 h-3.5" stroke-width="2.5" />
                     <span class="text-[10px] font-black uppercase tracking-wider">
-                      {{ g.checkin_status === 'checkout' ? 'In Lagi' : 'Check In' }}
+                      {{ g.checkin_status === 'checked_in' ? 'Check Out' : (g.checkin_status === 'checked_out' ? 'In Lagi' : 'Check In') }}
                     </span>
                   </template>
                 </button>
@@ -278,41 +300,41 @@
       </div>
 
       <!-- HISTORY SECTION -->
-      <div class="card h-fit sticky top-6 border-0 shadow-2xl shadow-slate-200/50">
-        <div class="card-header bg-slate-50/50 backdrop-blur-sm">
+      <div class="card h-fit sticky top-6 border-0 shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50">
+        <div class="card-header bg-slate-50/50 dark:bg-slate-900/50 dark:border-slate-800 backdrop-blur-sm">
           <div class="flex items-center gap-3">
             <div class="h-9 w-9 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center">
               <ClockIcon class="h-5 w-5" stroke-width="2.5" />
             </div>
             <div>
-              <span class="block text-sm font-black text-slate-900 tracking-tight">Riwayat Scan</span>
-              <span class="block text-[10px] text-slate-500 font-bold uppercase tracking-widest">Aktivitas Terakhir</span>
+              <span class="block text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">Riwayat Scan</span>
+              <span class="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Aktivitas Terakhir</span>
             </div>
           </div>
           <button @click="history = []" class="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors">Clear</button>
         </div>
         <div class="card-body p-0 max-h-[calc(100vh-250px)] overflow-y-auto">
-          <div v-if="history.length > 0" class="divide-y divide-slate-50">
-            <div v-for="(item, idx) in history" :key="idx" class="p-5 flex items-start gap-4 hover:bg-slate-50/50 transition-all duration-300">
-              <div :class="['h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm', item.success ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600']">
+          <div v-if="history.length > 0" class="divide-y divide-slate-50 dark:divide-slate-800">
+            <div v-for="(item, idx) in history" :key="idx" class="p-5 flex items-start gap-4 hover:bg-slate-50/50 hover:dark:bg-slate-800/50 transition-all duration-300">
+              <div :class="['h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm', item.success ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400']">
                 <CheckIcon v-if="item.success" class="h-6 w-6" stroke-width="2.5" />
                 <XMarkIcon v-else class="h-6 w-6" stroke-width="2.5" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-start mb-0.5">
-                  <span class="font-black text-sm text-slate-900 truncate pr-2 tracking-tight">{{ item.name || 'Tamu Tidak Dikenal' }}</span>
+                  <span class="font-black text-sm text-slate-900 dark:text-slate-100 truncate pr-2 tracking-tight">{{ item.name || 'Tamu Tidak Dikenal' }}</span>
                   <span class="text-[10px] font-bold text-slate-400 tabular-nums uppercase">{{ item.time }}</span>
                 </div>
-                <p :class="['text-xs font-bold leading-tight', item.success ? 'text-emerald-600' : 'text-rose-600']">{{ item.message }}</p>
+                <p :class="['text-xs font-bold leading-tight', item.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400']">{{ item.message }}</p>
                 <div v-if="item.guest" class="mt-2.5 flex flex-wrap gap-1.5">
-                  <span class="px-2 py-0.5 bg-slate-100 text-[9px] font-black text-slate-500 uppercase rounded-md tracking-wider">Meja {{ item.guest.table_number || '-' }}</span>
-                  <span class="px-2 py-0.5 bg-slate-100 text-[9px] font-black text-slate-500 uppercase rounded-md tracking-wider">{{ item.guest.type }}</span>
+                  <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 dark:text-slate-300 uppercase rounded-md tracking-wider">Meja {{ item.guest.table_number || '-' }}</span>
+                  <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 dark:text-slate-300 uppercase rounded-md tracking-wider">{{ item.guest.type }}</span>
                 </div>
               </div>
             </div>
           </div>
           <div v-else class="p-12 text-center">
-            <div class="w-16 h-16 bg-slate-50 text-slate-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
+            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 text-slate-200 dark:text-slate-600 rounded-3xl flex items-center justify-center mx-auto mb-4">
               <ClockIcon class="w-8 h-8" />
             </div>
             <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Belum ada aktivitas</p>
@@ -345,7 +367,8 @@ import {
   TableCellsIcon,
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
-  UserMinusIcon
+  UserMinusIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -383,15 +406,39 @@ const cooldownTimer = ref(0);
 const lastScannedToken = ref(null);
 let isUnmounted = false;
 
+const showEventDropdown = ref(false);
+const eventSearchQuery = ref('');
+const eventDropdownRef = ref(null);
+
+const filteredEvents = computed(() => {
+  if (!eventSearchQuery.value) return props.events;
+  const q = eventSearchQuery.value.toLowerCase();
+  return props.events.filter(e => e.name.toLowerCase().includes(q));
+});
+
+const selectEvent = (id) => {
+  selectedEventId.value = id;
+  showEventDropdown.value = false;
+  eventSearchQuery.value = '';
+};
+
+const handleClickOutside = (event) => {
+  if (eventDropdownRef.value && !eventDropdownRef.value.contains(event.target)) {
+    showEventDropdown.value = false;
+  }
+};
+
 onMounted(() => {
   isUnmounted = false;
   startScanner();
   loadOfflineData();
+  document.addEventListener('click', handleClickOutside);
 });
 
 onBeforeUnmount(() => {
   isUnmounted = true;
   stopScanner();
+  document.removeEventListener('click', handleClickOutside);
 });
 
 watch(isOfflineMode, (newVal) => {
@@ -581,14 +628,14 @@ const processOfflineScan = (qrCode, method = 'qr') => {
   const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   if (!guest.checkin_time) {
       guest.checkin_time = timeStr;
-      guest.checkin_status = 'checkin';
-  } else if (guest.checkin_status !== 'checkout') {
+      guest.checkin_status = 'checked_in';
+  } else if (guest.checkin_status !== 'checked_out') {
       guest.checkout_time = timeStr;
-      guest.checkin_status = 'checkout';
+      guest.checkin_status = 'checked_out';
   } else {
       guest.checkin_time = timeStr;
       guest.checkout_time = null;
-      guest.checkin_status = 'checkin';
+      guest.checkin_status = 'checked_in';
   }
   
   SafeStorage.setItem(`offline_data_${selectedEventId.value}`, JSON.stringify(offlineGuests.value));
@@ -768,14 +815,13 @@ const processManual = async (guestId) => {
   height: 48px;
   padding-left: 44px;
   padding-right: 44px;
-  border: 1.5px solid #e2e8f0;
+  border-width: 1.5px;
+  border-style: solid;
   border-radius: 14px;
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
-  background: #fff;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
 }
 .search-input-field::placeholder { color: #94a3b8; font-weight: 500; }
 .search-input-field:focus {
@@ -792,15 +838,13 @@ const processManual = async (guestId) => {
   height: 28px;
   border-radius: 8px;
   border: none;
-  background: #f1f5f9;
-  color: #94a3b8;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.15s, color 0.15s;
 }
-.search-clear-btn:hover { background: #fee2e2; color: #ef4444; }
+.search-clear-btn:hover { background: var(--danger-soft); color: var(--danger); }
 .search-clear-btn svg { width: 12px; height: 12px; }
 
 /* Hint chips */
@@ -810,7 +854,7 @@ const processManual = async (guestId) => {
   gap: 4px;
   font-size: 10px;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -820,9 +864,9 @@ const processManual = async (guestId) => {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1.5px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -830,9 +874,9 @@ const processManual = async (guestId) => {
   white-space: nowrap;
 }
 .search-chip:hover {
-  border-color: #6366f1;
-  background: #eef2ff;
-  color: #4f46e5;
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
 }
@@ -843,14 +887,14 @@ const processManual = async (guestId) => {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #f8fafc;
-  border: 1.5px solid #f1f5f9;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
   border-radius: 14px;
   transition: all 0.15s;
 }
 .search-result-item:hover {
-  background: #ffffff;
-  border-color: #c7d2fe;
+  background: var(--card-bg);
+  border-color: var(--primary-soft);
   box-shadow: 0 2px 10px rgba(99, 102, 241, 0.1);
 }
 
@@ -867,20 +911,20 @@ const processManual = async (guestId) => {
   flex-shrink: 0;
   letter-spacing: -0.5px;
 }
-.avatar-default { background: #f1f5f9; color: #64748b; border: 1.5px solid #e2e8f0; }
-.avatar-in { background: #ecfdf5; color: #059669; border: 1.5px solid #a7f3d0; }
-.avatar-out { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; }
+.avatar-default { background: var(--bg-base); color: var(--text-muted); border: 1.5px solid var(--border); }
+.avatar-in { background: var(--success-soft); color: var(--success); border: 1.5px solid rgba(16, 185, 129, 0.3); }
+.avatar-out { background: var(--danger-soft); color: var(--danger); border: 1.5px solid rgba(244, 63, 94, 0.3); }
 
 /* Type chip */
 .search-type-chip {
   padding: 2px 7px;
   border-radius: 6px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   font-size: 9px;
   font-weight: 900;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--text-muted);
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }
@@ -907,8 +951,8 @@ const processManual = async (guestId) => {
 .action-checkin:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.45); }
 .action-checkout { background: linear-gradient(135deg, #f59e0b, #f97316); color: white; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35); }
 .action-checkout:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.45); }
-.action-reincheck { background: #f1f5f9; color: #64748b; border: 1.5px solid #e2e8f0; }
-.action-reincheck:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+.action-reincheck { background: var(--bg-base); color: var(--text-muted); border: 1.5px solid var(--border); }
+.action-reincheck:hover:not(:disabled) { background: var(--hover-bg); color: var(--text-primary); }
 
 .scanner-page-grid {
   display: grid;

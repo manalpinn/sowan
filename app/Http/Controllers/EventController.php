@@ -24,28 +24,73 @@ class EventController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
-        // Filter by Status (Simplified logic mapping to accessor)
+        // Filter by Status (Exact mapping to accessor logic)
         if ($status = $request->input('status')) {
             $now = now(config('app.timezone'));
-            if ($status === 'Aktif') {
-                $query->where('is_active', true)
-                      ->where(function($q) use ($now) {
-                          $q->whereNull('start_date')->orWhereDate('start_date', '<=', $now);
-                      })
-                      ->where(function($q) use ($now) {
-                          $q->whereNull('end_date')->orWhereDate('end_date', '>=', $now);
+            $date = $now->toDateString();
+            $time = $now->toTimeString();
+
+            if ($status === 'Selesai') {
+                $query->whereNotNull('end_date')
+                      ->where(function($q) use ($date, $time) {
+                          $q->whereDate('end_date', '<', $date)
+                            ->orWhere(function($q2) use ($date, $time) {
+                                $q2->whereDate('end_date', '=', $date)
+                                   ->whereNotNull('end_time')
+                                   ->whereTime('end_time', '<', $time);
+                            });
                       });
             } elseif ($status === 'Akan Datang') {
                 $query->where('is_active', true)
                       ->whereNotNull('start_date')
-                      ->whereDate('start_date', '>', $now);
-            } elseif ($status === 'Selesai') {
-                $query->where(function($q) use ($now) {
-                    $q->where('is_active', false)
-                      ->orWhere(function($subq) use ($now) {
-                          $subq->whereNotNull('end_date')->whereDate('end_date', '<', $now);
+                      ->where(function($q) use ($date, $time) {
+                          $q->whereDate('start_date', '>', $date)
+                            ->orWhere(function($q2) use ($date, $time) {
+                                $q2->whereDate('start_date', '=', $date)
+                                   ->whereNotNull('start_time')
+                                   ->whereTime('start_time', '>', $time);
+                            });
                       });
-                });
+            } elseif ($status === 'Nonaktif') {
+                $query->where('is_active', false)
+                      ->where(function($q) use ($date, $time) {
+                          // Not Selesai
+                          $q->whereNull('end_date')
+                            ->orWhereDate('end_date', '>', $date)
+                            ->orWhere(function($q2) use ($date, $time) {
+                                $q2->whereDate('end_date', '=', $date)
+                                   ->where(function($q3) use ($time) {
+                                       $q3->whereNull('end_time')
+                                          ->orWhereTime('end_time', '>=', $time);
+                                   });
+                            });
+                      });
+            } elseif ($status === 'Aktif') {
+                $query->where('is_active', true)
+                      ->where(function($q) use ($date, $time) {
+                          // Not Selesai
+                          $q->whereNull('end_date')
+                            ->orWhereDate('end_date', '>', $date)
+                            ->orWhere(function($q2) use ($date, $time) {
+                                $q2->whereDate('end_date', '=', $date)
+                                   ->where(function($q3) use ($time) {
+                                       $q3->whereNull('end_time')
+                                          ->orWhereTime('end_time', '>=', $time);
+                                   });
+                            });
+                      })
+                      ->where(function($q) use ($date, $time) {
+                          // Not Akan Datang
+                          $q->whereNull('start_date')
+                            ->orWhereDate('start_date', '<', $date)
+                            ->orWhere(function($q2) use ($date, $time) {
+                                $q2->whereDate('start_date', '=', $date)
+                                   ->where(function($q3) use ($time) {
+                                       $q3->whereNull('start_time')
+                                          ->orWhereTime('start_time', '<=', $time);
+                                   });
+                            });
+                      });
             }
         }
 
@@ -61,7 +106,7 @@ class EventController extends Controller
         }
         $query->orderBy($sort, $direction);
 
-        $events = $query->paginate(10)
+        $events = $query->paginate($request->input('per_page', 10))
             ->withQueryString()
             ->through(fn($e) => [
                 'id' => $e->id,
@@ -83,6 +128,7 @@ class EventController extends Controller
                 'status' => $request->input('status', ''),
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $request->input('per_page', 10),
             ],
             'role' => $user->hasRole('superadmin') ? 'superadmin' : 'admin_event'
         ]);
@@ -109,6 +155,7 @@ class EventController extends Controller
             'google_maps_link' => 'nullable|string',
             'description' => 'nullable|string',
             'theme_color' => 'nullable|string|max:20',
+            'custom_text_color' => 'nullable|string|max:20',
             'welcome_message' => 'nullable|string',
             'attendance_type' => 'nullable|string|in:checkin_only,checkin_checkout',
             'invitation_template' => 'nullable|string|in:formal,wedding,corporate',
@@ -157,45 +204,45 @@ class EventController extends Controller
 
     public function edit(Event $event)
     {
-        // Event yang sudah selesai tetap bisa diakses untuk edit nama
+        if ($event->event_status === 'Selesai') {
+            return redirect()->route('events.show', $event)->with('error', 'Event yang sudah selesai tidak dapat diedit.');
+        }
         return Inertia::render('Events/Form', ['event' => $event]);
     }
 
     public function update(Request $request, Event $event)
     {
-        $isFinished = $event->event_status === 'Selesai';
+        if ($event->event_status === 'Selesai') {
+            return redirect()->route('events.show', $event)->with('error', 'Event yang sudah selesai tidak dapat diedit.');
+        }
 
         $rules = [
             'name' => ['required', 'string', 'max:255', Rule::unique('events')->ignore($event->id)],
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'location' => 'required|string|max:255',
+            'location_name' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'google_maps_link' => 'nullable|string',
+            'description' => 'nullable|string',
+            'theme_color' => 'nullable|string|max:20',
+            'custom_text_color' => 'nullable|string|max:20',
+            'welcome_message' => 'nullable|string',
+            'attendance_type' => 'nullable|string|in:checkin_only,checkin_checkout',
+            'invitation_template' => 'nullable|string|in:formal,wedding,corporate',
+            'is_active' => 'boolean',
         ];
-
-        if (!$isFinished) {
-            $rules = array_merge($rules, [
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i|after:start_time',
-                'location' => 'required|string|max:255',
-                'location_name' => 'nullable|string|max:255',
-                'address' => 'nullable|string',
-                'latitude' => 'nullable|numeric',
-                'longitude' => 'nullable|numeric',
-                'google_maps_link' => 'nullable|string',
-                'description' => 'nullable|string',
-                'theme_color' => 'nullable|string|max:20',
-                'welcome_message' => 'nullable|string',
-                'attendance_type' => 'nullable|string|in:checkin_only,checkin_checkout',
-                'invitation_template' => 'nullable|string|in:formal,wedding,corporate',
-                'is_active' => 'boolean',
-            ]);
-        }
 
         $validated = $request->validate($rules, [
             'name.unique' => 'Event dengan nama ini sudah terdaftar.',
             'end_time.after' => 'Waktu selesai harus lebih besar dari waktu mulai.',
         ]);
 
-        if (!$isFinished && $request->hasFile('banner')) {
+        if ($request->hasFile('banner')) {
             $validated['banner'] = $request->file('banner')->store('banners', 'public');
         }
 
@@ -261,7 +308,7 @@ class EventController extends Controller
                 $query->where('name', 'like', "%{$search}%");
             })
             ->orderBy('name')
-            ->take(20)
+            ->take(5)
             ->get();
             
         return response()->json($events);

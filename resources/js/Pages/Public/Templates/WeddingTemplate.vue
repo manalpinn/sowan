@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen font-serif text-slate-800 antialiased py-12 px-4 flex items-center justify-center relative overflow-hidden" :style="{ '--theme-primary': event.theme_color || '#db2777', '--theme-contrast': getContrastColor(event.theme_color || '#db2777'), backgroundColor: '#fdfbfb' }">
+  <div class="min-h-screen font-serif text-slate-800 antialiased py-12 px-4 flex items-center justify-center relative overflow-hidden" :style="{ '--theme-primary': event.theme_color || '#db2777', '--theme-contrast': getContrastColor(event.theme_color || '#db2777', event.custom_text_color), '--theme-text': getThemeTextColor(event.theme_color || '#db2777', event.custom_text_color), backgroundColor: '#fdfbfb' }">
     <!-- Subtle background decoration -->
     <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" :style="{ backgroundImage: 'radial-gradient(circle at center, var(--theme-primary) 1px, transparent 1px)', backgroundSize: '40px 40px' }"></div>
 
@@ -18,15 +18,15 @@
 
         <p class="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-3 sm:mb-4 opacity-60">The Wedding Of</p>
         
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8" style="font-family: 'Playfair Display', serif;" :style="{ color: 'var(--theme-primary)' }">{{ event.name }}</h1>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8" style="font-family: 'Playfair Display', serif;" :style="{ color: 'var(--theme-text)' }">{{ event.name }}</h1>
 
         <div class="h-px w-16 sm:w-24 mx-auto bg-slate-100 mb-8 sm:mb-10"></div>
 
         <!-- Welcome Message -->
         <div class="mb-10">
           <p class="text-sm italic text-slate-500 mb-2">Kepada Yth. Bapak/Ibu/Saudara/i</p>
-          <h2 class="text-2xl font-medium tracking-wide mb-3" :style="{ color: 'var(--theme-primary)' }">{{ guest.name }}</h2>
-          <div class="inline-block px-4 py-1 border rounded-full text-xs uppercase tracking-widest text-slate-400" :style="{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }">
+          <h2 class="text-2xl font-medium tracking-wide mb-3" :style="{ color: 'var(--theme-text)' }">{{ guest.name }}</h2>
+          <div class="inline-block px-4 py-1 border rounded-full text-xs uppercase tracking-widest text-slate-400" :style="{ borderColor: 'var(--theme-text)', color: 'var(--theme-text)' }">
             {{ guest.type }}
           </div>
         </div>
@@ -162,7 +162,8 @@ const rsvpOptions = [
   { value: 'declined', label: 'Maaf, Absen' },
 ];
 
-const getContrastColor = (hexColor) => {
+const getContrastColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
   if (!hexColor) return '#ffffff';
   const hex = hexColor.replace('#', '');
   if (hex.length !== 6) return '#ffffff';
@@ -171,6 +172,19 @@ const getContrastColor = (hexColor) => {
   const b = parseInt(hex.substr(4, 2), 16);
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return (yiq >= 128) ? '#1e293b' : '#ffffff';
+};
+
+const getThemeTextColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
+  if (!hexColor) return '#db2777';
+  const hex = hexColor.replace('#', '');
+  if (hex.length !== 6) return '#db2777';
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  // If the color is too bright, return a dark fallback color for readability on white background
+  return (yiq >= 128) ? '#1e293b' : hexColor;
 };
 
 const submitRsvp = async () => {

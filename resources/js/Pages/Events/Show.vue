@@ -18,7 +18,7 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Informasi Acara</span>
-          <Link :href="route('events.edit', event.id)" class="btn btn-secondary flex items-center gap-2">
+          <Link v-if="event.event_status !== 'Selesai'" :href="route('events.edit', event.id)" class="btn btn-secondary flex items-center gap-2">
             <PencilSquareIcon class="w-4 h-4" />
             Edit Event
           </Link>
@@ -68,7 +68,7 @@
             </div>
             <div class="info-item">
               <span class="info-label">Pesan Sambutan WA</span>
-              <div class="p-3 bg-gray-50 rounded-lg text-sm italic border border-gray-100">
+              <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg text-sm italic border border-slate-100 dark:border-slate-700/50 text-slate-700 dark:text-slate-300">
                 "{{ event.welcome_message || 'Belum diatur.' }}"
               </div>
             </div>

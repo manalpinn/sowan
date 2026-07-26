@@ -19,24 +19,26 @@
       </div>
 
       <div 
-        v-if="!isExpanded && hiddenEventsCount > 0"
-        class="flex items-center gap-1.5 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-[8px] text-xs font-bold shadow-sm border border-slate-200 cursor-pointer hover:bg-slate-200 transition-all"
-        @click.stop="isExpanded = true"
+        v-if="hiddenEventsCount > 0"
+        class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-[8px] text-xs font-bold shadow-sm border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+        @click.stop="isExpanded = !isExpanded"
       >
-        + {{ hiddenEventsCount }} event lainnya...
+        <ChevronDownIcon class="w-3 h-3 transition-transform" :class="{ 'rotate-180': isExpanded }" stroke-width="3" />
+        {{ isExpanded ? 'Sembunyikan' : `+ ${hiddenEventsCount} event lainnya...` }}
       </div>
 
-      <div 
-        v-for="event in hiddenEvents" 
-        :key="event.id"
-        v-show="isExpanded"
-        class="flex items-center gap-1.5 bg-primary-soft text-primary px-3 py-1.5 rounded-[8px] text-xs font-bold shadow-sm border border-primary/10 transition-all hover:bg-primary/20"
-      >
-        <span class="truncate max-w-[150px]">{{ event.name }}</span>
-        <button type="button" @click.stop="removeEvent(event.id)" class="text-primary hover:text-primary-dark transition-colors ml-0.5">
-          <XMarkIcon class="w-3.5 h-3.5" stroke-width="3" />
-        </button>
-      </div>
+      <template v-if="isExpanded">
+        <div 
+          v-for="event in hiddenEvents" 
+          :key="event.id"
+          class="flex items-center gap-1.5 bg-primary-soft text-primary px-3 py-1.5 rounded-[8px] text-xs font-bold shadow-sm border border-primary/10 transition-all hover:bg-primary/20"
+        >
+          <span class="truncate max-w-[150px]">{{ event.name }}</span>
+          <button type="button" @click.stop="removeEvent(event.id)" class="text-primary hover:text-primary-dark transition-colors ml-0.5">
+            <XMarkIcon class="w-3.5 h-3.5" stroke-width="3" />
+          </button>
+        </div>
+      </template>
 
       <!-- Search Input -->
       <input 
@@ -69,7 +71,7 @@
     >
       <div 
         v-show="isOpen" 
-        class="absolute z-50 w-full mt-2 bg-white border border-[var(--border)] rounded-xl shadow-lg max-h-60 overflow-y-auto"
+        class="absolute z-50 w-full mt-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg max-h-60 overflow-y-auto"
       >
         <div v-if="isLoading" class="p-4 text-center text-sm text-[var(--text-muted)] font-bold flex items-center justify-center gap-2">
            <ArrowPathIcon class="w-4 h-4 animate-spin text-primary" stroke-width="3" />
@@ -96,8 +98,8 @@
               class="w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors"
               :class="{
                 'bg-primary border-primary': isSelected(event.id) && highlightedIndex !== index,
-                'bg-white border-white': isSelected(event.id) && highlightedIndex === index,
-                'border-[var(--border-strong)] bg-white': !isSelected(event.id)
+                'bg-white dark:bg-slate-100 border-white dark:border-slate-100': isSelected(event.id) && highlightedIndex === index,
+                'border-[var(--border-strong)] bg-[var(--input-bg)]': !isSelected(event.id)
               }"
             >
               <CheckIcon v-if="isSelected(event.id)" class="w-3 h-3" :class="{'text-white': highlightedIndex !== index, 'text-primary': highlightedIndex === index}" stroke-width="4" />

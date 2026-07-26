@@ -35,8 +35,8 @@
         </div>
       </header>
 
-      <!-- SUPERADMIN VIEW -->
-      <template v-if="role === 'superadmin'">
+      <!-- MAIN DASHBOARD VIEW (Superadmin & Admin Event) -->
+      <template v-if="['superadmin', 'admin_event'].includes(role) && stats">
       <!-- Key Statistics -->
       <section class="space-y-4">
         <div class="flex items-center gap-3">
@@ -55,7 +55,7 @@
       <section class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Main Chart: Events Trend -->
-          <div class="lg:col-span-2 card p-8 shadow-sm">
+          <div class="lg:col-span-2 card p-5 sm:p-8 shadow-sm">
             <div class="flex items-center justify-between mb-8">
               <div class="flex items-center gap-3">
                 <div class="h-6 w-1.5 bg-primary rounded-full"></div>
@@ -72,7 +72,7 @@
           </div>
 
           <!-- Distribution Chart -->
-          <div class="card p-8 relative overflow-hidden group">
+          <div class="card p-5 sm:p-8 relative overflow-hidden group">
             <div class="flex items-center justify-between mb-8 relative z-10">
               <div class="flex items-center gap-3">
                 <div class="h-6 w-1.5 bg-success rounded-full"></div>
@@ -80,16 +80,16 @@
               </div>
             </div>
             
-            <div class="h-[320px] flex flex-col justify-center relative z-10">
+            <div class="flex flex-col justify-center relative z-10 pb-2">
                <apexchart type="donut" height="280" :options="checkinOutOptions" :series="checkinOutSeries" />
-                <div class="mt-8 grid grid-cols-2 gap-3">
-                  <div class="flex flex-col px-4 py-3 bg-success-soft/50 rounded-2xl border border-success-soft/80 group-hover:bg-success-soft transition-colors">
-                    <span class="text-[10px] font-bold text-success uppercase tracking-wider mb-1">Total Hadir</span>
-                    <span class="text-xl font-black text-success tabular-nums">{{ charts?.checkinOut?.checkin ?? 0 }}</span>
+                <div class="mt-2 grid grid-cols-2 gap-3 sm:gap-4">
+                  <div class="flex flex-col items-center justify-center py-2 text-center">
+                    <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">Total Hadir</span>
+                    <span class="text-4xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none">{{ charts?.checkinOut?.checkin ?? 0 }}</span>
                   </div>
-                  <div class="flex flex-col px-4 py-3 bg-warning-soft/50 rounded-2xl border border-warning-soft/80 group-hover:bg-warning-soft transition-colors">
-                    <span class="text-[10px] font-bold text-warning uppercase tracking-wider mb-1">Sudah Keluar</span>
-                    <span class="text-xl font-black text-warning tabular-nums">{{ charts?.checkinOut?.checkout ?? 0 }}</span>
+                  <div class="flex flex-col items-center justify-center py-2 text-center">
+                    <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-2">Sudah Keluar</span>
+                    <span class="text-4xl font-black text-amber-600 dark:text-amber-400 tabular-nums leading-none">{{ charts?.checkinOut?.checkout ?? 0 }}</span>
                   </div>
                </div>
             </div>
@@ -98,8 +98,8 @@
 
         <!-- Guest Attendance Bar Chart -->
         <div class="grid grid-cols-1 gap-6">
-          <div class="card p-8">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div class="card p-5 sm:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
               <div class="flex items-center gap-3">
                 <div class="flex flex-col">
                   <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">
@@ -108,7 +108,7 @@
                   <p class="text-[10px] font-bold text-slate-400 mt-0.5">Laporan partisipasi tamu pada seluruh event yang terdaftar</p>
                 </div>
               </div>
-              <div class="flex items-center gap-4 ml-9 sm:ml-0">
+              <div class="flex flex-wrap items-center gap-3 sm:gap-4 mt-1 sm:mt-0">
                 <div class="flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-slate-200"></span>
                   <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Total Tamu</span>
@@ -250,80 +250,20 @@
         </div>
       </section>
     </template>
+    
+    <!-- Empty State when no events managed -->
+    <template v-if="role === 'admin_event' && !stats">
+      <div class="card p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+          <CalendarIcon class="w-10 h-10 text-slate-300" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-700 mb-2">Belum Ada Event Aktif</h3>
+        <p class="text-slate-500 max-w-md mx-auto">
+          Anda belum ditugaskan untuk mengelola event apapun. Silakan hubungi Administrator untuk mendapatkan akses ke event.
+        </p>
+      </div>
+    </template>
 
-      <!-- ADMIN EVENT VIEW -->
-      <template v-else>
-        <!-- Event Banner Header -->
-        <section v-if="event">
-          <div class="border border-slate-100 shadow-sm rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8 bg-white overflow-hidden relative">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
-            <div class="h-20 w-20 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-sm relative z-10">
-              <CalendarIcon class="h-10 w-10" stroke-width="1.5" />
-            </div>
-            <div class="text-center md:text-left relative z-10 flex-1">
-              <h2 class="text-2xl font-black text-slate-800 leading-tight">{{ event?.name }}</h2>
-              <div class="flex flex-wrap justify-center md:justify-start items-center gap-4 mt-4">
-                 <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    <CalendarDaysIcon class="h-4 w-4 text-indigo-500" />
-                    <span>{{ event?.date }}</span>
-                 </div>
-                 <div class="w-1.5 h-1.5 bg-slate-200 rounded-full hidden md:block"></div>
-                 <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    <MapPinIcon class="h-4 w-4 text-indigo-500" />
-                    <span>{{ event?.location }}</span>
-                 </div>
-              </div>
-            </div>
-             <div class="shrink-0 flex items-center gap-3">
-               <Link :href="route('scanner.index')" class="scan-qr-btn">
-                 <QrCodeIcon class="w-5 h-5" stroke-width="2.5" />
-                 <span>Scan QR</span>
-                 <span class="scan-live-dot"></span>
-               </Link>
-             </div>
-          </div>
-        </section>
-
-        <!-- Admin Statistics -->
-        <section class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" v-if="event && stats">
-            <StatCard label="Total Tamu" :value="stats?.total_guests ?? 0" color="#6366F1" icon="guests" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Sudah Hadir" :value="stats?.checked_in ?? 0" color="#10B981" icon="checkin" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Belum Hadir" :value="stats?.not_arrived ?? 0" color="#F59E0B" icon="pending" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Check-out" :value="stats?.checked_out ?? 0" v-if="event?.attendance_type === 'checkin_checkout'" color="#6366F1" icon="checkout" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Konfirmasi Hadir" :value="stats?.rsvp_attending ?? 0" color="#10B981" icon="checkin" v-else class="shadow-sm border-slate-100/50" />
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" v-if="event && stats">
-            <StatCard label="Total PAX (Hadir)" :value="stats?.total_pax ?? 0" color="#6366F1" icon="guests" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Hadir (Konfirmasi)" :value="stats?.rsvp_attending ?? 0" color="#10B981" icon="checkin" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Absen" :value="stats?.rsvp_declined ?? 0" color="#EF4444" icon="close" class="shadow-sm border-slate-100/50" />
-            <StatCard label="Belum Konfirmasi" :value="(stats?.total_guests || 0) - (stats?.rsvp_attending || 0) - (stats?.rsvp_declined || 0)" color="#94A3B8" icon="users" class="shadow-sm border-slate-100/50" />
-          </div>
-        </section>
-
-        <!-- Admin Charts -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8" v-if="event && charts">
-          <div class="card p-8 shadow-sm border-slate-100/80 bg-white rounded-3xl">
-            <div class="flex items-center gap-3 mb-8">
-              <div class="h-6 w-1.5 bg-indigo-500 rounded-full"></div>
-              <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Distribusi Tipe Tamu</h3>
-            </div>
-            <div class="h-[300px]">
-              <apexchart type="donut" height="100%" :options="guestTypeOptions" :series="guestTypeSeries" />
-            </div>
-          </div>
-          <div class="card p-8 shadow-sm border-slate-100/80 bg-white rounded-3xl">
-            <div class="flex items-center gap-3 mb-8">
-              <div class="h-6 w-1.5 bg-emerald-500 rounded-full"></div>
-              <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Waktu Kedatangan</h3>
-            </div>
-            <div class="h-[300px]">
-              <apexchart type="bar" height="100%" :options="arrivalOptions" :series="arrivalSeries" />
-            </div>
-          </div>
-        </section>
-      </template>
     </div>
   </AdminLayout>
 </template>
@@ -418,21 +358,6 @@ const guestTypeOptions = computed(() => ({
   dataLabels: { enabled: false },
 }));
 
-/**
- * Admin Event Chart Data
- */
-const arrivalSeries = computed(() => [{
-  name: 'Kedatangan',
-  data: props.charts?.arrivalTrend?.map(t => t.total) ?? [],
-}]);
-const arrivalOptions = computed(() => ({
-  chart: { toolbar: { show: false }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
-  colors: ['#10B981'],
-  xaxis: { categories: props.charts?.arrivalTrend?.map(t => t.hour) ?? [] },
-  plotOptions: { bar: { borderRadius: 6, columnWidth: '50%' } },
-  dataLabels: { enabled: false },
-  grid: { borderColor: '#f1f5f9' },
-}));
 </script>
 
 <style scoped>

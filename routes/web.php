@@ -61,7 +61,7 @@ Route::middleware(['auth', 'verified', 'require.otp'])->group(function () {
     Route::middleware(['role:superadmin|admin_event|admin', 'event.admin'])->group(function () {
         Route::get('checkins', [\App\Http\Controllers\CheckinController::class, 'index'])->name('checkins.index');
         Route::get('checkins/poll', [\App\Http\Controllers\CheckinController::class, 'poll'])->name('checkins.poll');
-        Route::get('checkins/export/csv', [\App\Http\Controllers\CheckinController::class, 'exportCsv'])->name('checkins.export.csv');
+        Route::get('checkins/export/excel', [\App\Http\Controllers\CheckinController::class, 'exportExcel'])->name('checkins.export.excel');
         Route::get('checkins/export/pdf', [\App\Http\Controllers\CheckinController::class, 'exportPdf'])->name('checkins.export.pdf');
     });
 

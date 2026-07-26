@@ -34,7 +34,6 @@
                 <option value="VVIP">VVIP</option>
                 <option value="Regular">Regular</option>
                 <option value="Vendor">Vendor</option>
-                <option value="Media">Media</option>
               </select>
             </div>
           </div>
@@ -47,11 +46,11 @@
             v-if="selectedIds.length > 0"
             @click="bulkSendWA"
             class="btn btn-secondary btn-sm"
-            :disabled="processingBulk"
+            :disabled="processingBulk || selectedUnsentIds.length === 0"
           >
             <ArrowPathIcon v-if="processingBulk" class="animate-spin h-4 w-4" />
             <PaperAirplaneIcon v-else class="w-4 h-4" />
-            Kirim ({{ selectedIds.length }})
+            Kirim ({{ selectedUnsentIds.length }})
           </button>
 
           <button
@@ -212,7 +211,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span>Tampilkan:</span>
-            <select v-model="perPage" @change="onPerPageChange" class="filter-input py-0.5 px-2 text-xs rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 cursor-pointer w-20">
+            <select v-model="perPage" @change="onPerPageChange" class="py-1 px-2 text-xs rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer w-20 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option :value="10">10</option>
               <option :value="25">25</option>
               <option :value="50">50</option>
@@ -238,9 +237,9 @@
           <form @submit.prevent="doImport" enctype="multipart/form-data">
             <div class="import-modal__body">
               <div class="import-info">
-                <p class="font-semibold text-sm mb-1">Format kolom yang didukung:</p>
-                <code class="text-xs bg-gray-100 rounded px-2 py-1 block">nama, whatsapp, email, tipe, meja</code>
-                <p class="text-xs text-muted mt-2">Format file: <strong>.xlsx</strong> (maks. 5MB)</p>
+                <p class="font-semibold text-sm mb-1 text-slate-800 dark:text-slate-200">Format kolom yang didukung:</p>
+                <code class="text-xs bg-slate-100 dark:bg-slate-800/50 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 block">nama, whatsapp, email, tipe, meja</code>
+                <p class="text-xs text-muted mt-2">Format file: <strong class="text-slate-800 dark:text-slate-200">.xlsx</strong> (maks. 5MB)</p>
               </div>
 
               <!-- (Event ID will be automatically taken from active_event or filters) -->
@@ -332,6 +331,13 @@ const isAllSelected = computed(() => {
   return props.guests.data.length > 0 && selectedIds.value.length === props.guests.data.length;
 });
 
+const selectedUnsentIds = computed(() => {
+  return selectedIds.value.filter(id => {
+    const guest = props.guests.data.find(g => g.id === id);
+    return guest && guest.whatsapp_status !== 'sent';
+  });
+});
+
 function toggleSelectAll(e) {
   if (e.target.checked) {
     selectedIds.value = props.guests.data.map(g => g.id);
@@ -401,19 +407,37 @@ function showQr(guest) {
   });
 }
 
-function sendWA(guest) {
-  processingIds.value.push(guest.id);
-  router.post(route('guests.send-whatsapp', guest.id), {}, {
-    onFinish: () => {
-      processingIds.value = processingIds.value.filter(id => id !== guest.id);
-    }
-  });
+async function sendWA(guest) {
+  const result = await notify.confirm(
+    'Kirim Pesan?',
+    `Kirim undangan (WA & Email) ke ${guest.name}?`,
+    'Ya, Kirim Sekarang',
+    'info'
+  );
+
+  if (result.isConfirmed) {
+    processingIds.value.push(guest.id);
+    router.post(route('guests.send-whatsapp', guest.id), {}, {
+      onFinish: () => {
+        processingIds.value = processingIds.value.filter(id => id !== guest.id);
+      }
+    });
+  }
 }
 
 async function bulkSendWA() {
+  if (selectedUnsentIds.value.length === 0) {
+    notify.alert(
+      'Perhatian',
+      'Semua tamu yang dipilih sudah pernah dikirimi undangan (tidak ada pesan baru yang bisa dikirim).',
+      'warning'
+    );
+    return;
+  }
+  
   const result = await notify.confirm(
     'Kirim Bulk WhatsApp?',
-    `Kirim undangan WhatsApp ke ${selectedIds.value.length} tamu terpilih?`,
+    `Kirim undangan WhatsApp ke ${selectedUnsentIds.value.length} tamu terpilih (yang belum terkirim)?`,
     'Ya, Kirim Sekarang',
     'info'
   );
@@ -421,7 +445,7 @@ async function bulkSendWA() {
   if (result.isConfirmed) {
     processingBulk.value = true;
     router.post(route('guests.bulk-whatsapp'), {
-      ids: selectedIds.value
+      ids: selectedUnsentIds.value
     }, {
       onFinish: () => {
         processingBulk.value = false;

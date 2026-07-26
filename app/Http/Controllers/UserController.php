@@ -25,7 +25,7 @@ class UserController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(10)
+            ->paginate($request->input('per_page', 10))
             ->withQueryString()
             ->through(fn($u) => [
                 'id' => $u->id,
@@ -43,7 +43,7 @@ class UserController extends Controller
 
         return Inertia::render('Users/Index', [
             'users' => $users,
-            'filters' => $request->only('search')
+            'filters' => array_merge($request->only('search'), ['per_page' => $request->input('per_page', 10)])
         ]);
     }
 

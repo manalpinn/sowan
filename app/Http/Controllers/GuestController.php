@@ -116,7 +116,7 @@ class GuestController extends Controller
             ],
             'email' => 'nullable|email|max:255',
             'phone' => ['nullable', 'string', 'regex:/^(0|62|\+62)[0-9]+$/', 'min:10', 'max:16'],
-            'type' => 'required|in:VIP,Regular,VVIP,Vendor,Media',
+            'type' => 'required|in:VIP,Regular,VVIP,Vendor',
             'table_number' => [
                 'nullable', 
                 'string', 
@@ -145,7 +145,7 @@ class GuestController extends Controller
 
         $guest = Guest::create($validated);
 
-        return redirect()->route('guests.index')->with('success', 'Tamu berhasil ditambahkan!');
+        return redirect()->route('guests.index', ['event_id' => $request->event_id])->with('success', 'Tamu berhasil ditambahkan!');
     }
 
     public function edit(Guest $guest): Response
@@ -164,23 +164,24 @@ class GuestController extends Controller
     public function update(Request $request, Guest $guest)
     {
         $validated = $request->validate([
+            'event_id' => ['required', 'exists:events,id'],
             'name' => [
                 'required', 
                 'string', 
                 'max:255',
-                Rule::unique('guests')->where(function ($query) use ($guest) {
-                    return $query->where('event_id', $guest->event_id);
+                Rule::unique('guests')->where(function ($query) use ($request) {
+                    return $query->where('event_id', $request->event_id);
                 })->ignore($guest->id)
             ],
             'email' => 'nullable|email|max:255',
             'phone' => ['nullable', 'string', 'regex:/^(0|62|\+62)[0-9]+$/', 'min:10', 'max:16'],
-            'type' => 'required|in:VIP,Regular,VVIP,Vendor,Media',
+            'type' => 'required|in:VIP,Regular,VVIP,Vendor',
             'table_number' => [
                 'nullable', 
                 'string', 
                 'max:20',
-                Rule::unique('guests')->where(function ($query) use ($request, $guest) {
-                    return $query->where('event_id', $guest->event_id)
+                Rule::unique('guests')->where(function ($query) use ($request) {
+                    return $query->where('event_id', $request->event_id)
                                  ->where('type', $request->type);
                 })->ignore($guest->id)
             ],
@@ -194,15 +195,16 @@ class GuestController extends Controller
 
         $guest->update($validated);
 
-        return redirect()->route('guests.index')->with('success', 'Data tamu berhasil diperbarui!');
+        return redirect()->route('guests.index', ['event_id' => $guest->event_id])->with('success', 'Data tamu berhasil diperbarui!');
     }
 
 
     public function destroy(Guest $guest)
     {
         $name = $guest->name;
+        $eventId = $guest->event_id;
         $guest->delete();
-        return redirect()->route('guests.index')->with('success', "Data tamu {$name} telah berhasil dihapus.");
+        return redirect()->route('guests.index', ['event_id' => $eventId])->with('success', "Data tamu {$name} telah berhasil dihapus.");
     }
 
     public function sendWhatsApp(Guest $guest)
@@ -226,7 +228,7 @@ class GuestController extends Controller
             \Illuminate\Support\Facades\Mail::to($guest->email)->send(new \App\Mail\GuestInvitationMail($guest));
         }
 
-        return back()->with('success', "Undangan (WA & Email) sedang dikirim ke {$guest->name}.");
+        return back()->with('success', "Berhasil! Pesan undangan sedang dikirim ke {$guest->name}.");
     }
 
     public function bulkSendMessage(Request $request)
@@ -309,9 +311,9 @@ class GuestController extends Controller
         }
 
         if ($result['success'] ?? true) {
-            return back()->with('success', count($toSend) . " undangan telah berhasil diproses (WA & Email).");
+            return back()->with('success', "Berhasil! " . count($toSend) . " pesan undangan (WA/Email) telah dimasukkan ke antrean pengiriman.");
         } else {
-            return back()->with('error', "Email diproses, namun gagal mengirim sebagian/semua pesan WA. Error: " . ($result['message'] ?? 'Unknown Error'));
+            return back()->with('error', "Gagal mengirim sebagian/semua pesan WA. Error: " . ($result['message'] ?? 'Unknown Error'));
         }
     }
 
@@ -363,17 +365,17 @@ class GuestController extends Controller
             }
 
             if (!empty($import->importErrors)) {
-                return redirect()->route('guests.index')
+                return redirect()->route('guests.index', ['event_id' => $eventId])
                     ->with('success', $message)
                     ->with('import_errors', $import->importErrors);
             }
 
-            return redirect()->route('guests.index')->with('success', $message);
+            return redirect()->route('guests.index', ['event_id' => $eventId])->with('success', $message);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Import failed: " . $e->getMessage());
             \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             
-            return redirect()->route('guests.index')->with('error', 'Gagal mengimport file: ' . $e->getMessage());
+            return redirect()->route('guests.index', ['event_id' => $request->event_id])->with('error', 'Gagal mengimport file: ' . $e->getMessage());
         }
     }
 

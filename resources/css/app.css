@@ -679,3 +679,39 @@ body {
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* =====================================================
+   APEXCHARTS DARK MODE OVERRIDES
+   ===================================================== */
+.dark .apexcharts-tooltip,
+.dark .apexcharts-xaxistooltip {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .apexcharts-xaxistooltip-bottom:before,
+.dark .apexcharts-xaxistooltip-bottom:after {
+  border-bottom-color: var(--card-bg) !important;
+}
+
+.dark .apexcharts-tooltip-title {
+  background: var(--bg-base) !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 800 !important;
+}
+
+.dark .apexcharts-tooltip-text,
+.dark .apexcharts-xaxistooltip-text {
+  color: var(--text-secondary) !important;
+}
+
+.dark .apexcharts-tooltip-y-group .apexcharts-tooltip-text-y-value {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+.dark .apexcharts-tooltip-marker {
+  border-color: var(--card-bg) !important;
+}

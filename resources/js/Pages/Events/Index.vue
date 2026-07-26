@@ -16,7 +16,7 @@
       </div>
 
       <!-- Filters & Actions -->
-      <div class="card p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+      <div class="card p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white dark:bg-[#131121] rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:w-2/3">
           <!-- Search -->
           <div class="relative flex-1">
@@ -25,21 +25,22 @@
             </div>
             <input 
               v-model="searchQuery" 
-              @keyup.enter="applyFilters"
+              @input="onFilterChange"
               type="text" 
               placeholder="Cari nama event..." 
-              class="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
+              class="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-[#131121] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
             >
           </div>
           <!-- Filter Status -->
           <select 
             v-model="statusFilter" 
             @change="applyFilters"
-            class="block w-full sm:w-48 py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
+            class="block w-full sm:w-48 py-2.5 px-3 bg-white dark:bg-[#131121] border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
           >
             <option value="">Semua Status</option>
             <option value="Aktif">Aktif</option>
             <option value="Akan Datang">Akan Datang</option>
+            <option value="Nonaktif">Nonaktif</option>
             <option value="Selesai">Selesai</option>
           </select>
           
@@ -47,7 +48,7 @@
           <select 
             v-model="sortColumn" 
             @change="applyFilters"
-            class="block w-full sm:w-48 py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
+            class="block w-full sm:w-48 py-2.5 px-3 bg-white dark:bg-[#131121] border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition-colors"
           >
             <option value="start_date">Urutkan: Tanggal</option>
             <option value="name">Urutkan: Nama</option>
@@ -56,7 +57,7 @@
           <!-- Sort Direction -->
           <button 
             @click="toggleSortDirection" 
-            class="flex items-center justify-center p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0"
+            class="flex items-center justify-center p-2.5 bg-white dark:bg-[#131121] border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0"
             title="Ubah arah urutan"
           >
             <BarsArrowDownIcon v-if="sortDirection === 'desc'" class="w-5 h-5" />
@@ -67,7 +68,7 @@
         <div class="flex items-center gap-2 lg:w-auto">
            <button 
              @click="resetFilters" 
-             class="px-4 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-slate-800 rounded-xl transition-colors w-full sm:w-auto"
+             class="px-4 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-[#131121] rounded-xl transition-colors w-full sm:w-auto"
            >
              Reset
            </button>
@@ -75,15 +76,15 @@
       </div>
 
       <!-- Table Content -->
-      <div class="card overflow-hidden bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700/80 rounded-2xl">
+      <div class="card overflow-hidden bg-white dark:bg-[#131121] shadow-sm border border-slate-100 dark:border-slate-700/80 rounded-2xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm whitespace-nowrap">
             <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 uppercase tracking-wider text-[11px] font-black text-slate-400 dark:text-slate-400">
               <tr>
                 <th class="px-6 py-4">Event Info</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-center">Tamu & Kehadiran</th>
-                <th class="px-6 py-4 text-right">Aksi</th>
+                <th class="px-6 py-4 !text-center">Tamu & Kehadiran</th>
+                <th class="px-6 py-4 !text-center">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -113,7 +114,7 @@
                       <span title="Total Tamu"><UserGroupIcon class="w-4 h-4 inline-block text-slate-400 dark:text-slate-400 mr-1" />{{ e.total_guests }}</span>
                       <span title="Hadir" class="text-emerald-600 dark:text-emerald-400"><CheckBadgeIcon class="w-4 h-4 inline-block text-emerald-400 mr-1" />{{ e.total_checkins }}</span>
                     </div>
-                    <div class="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="w-24 h-1.5 bg-slate-100 dark:bg-[#131121] rounded-full overflow-hidden">
                       <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out" 
                         :style="{ width: (e.total_guests > 0 ? (e.total_checkins / e.total_guests * 100) : 0) + '%' }">
                       </div>
@@ -121,12 +122,12 @@
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="flex items-center justify-end gap-2">
+                  <div class="flex items-center justify-center gap-2">
                     <Link :href="route('events.show', e.id)" class="btn btn-primary" title="Kelola Event">
                       <EyeIcon class="w-4 h-4" />
                       <span>Kelola</span>
                     </Link>
-                    <Link :href="route('events.edit', e.id)" class="btn btn-secondary" title="Edit Event">
+                    <Link v-if="e.event_status !== 'Selesai'" :href="route('events.edit', e.id)" class="btn btn-secondary" title="Edit Event">
                       <PencilSquareIcon class="w-4 h-4" />
                       <span>Edit</span>
                     </Link>
@@ -152,9 +153,21 @@
         </div>
         
         <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 flex items-center justify-between" v-if="events.total > 0">
-          <div class="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
-            Menampilkan <span class="text-slate-700 dark:text-slate-200">{{ events.from }}</span> - <span class="text-slate-700 dark:text-slate-200">{{ events.to }}</span> dari <span class="text-slate-700 dark:text-slate-200">{{ events.total }}</span>
+        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 flex flex-col sm:flex-row items-center justify-between gap-4" v-if="events.total > 0">
+          <div class="flex flex-col sm:flex-row items-center gap-4 text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
+            <div>
+              Menampilkan <span class="text-slate-700 dark:text-slate-200">{{ events.from }}</span> - <span class="text-slate-700 dark:text-slate-200">{{ events.to }}</span> dari <span class="text-slate-700 dark:text-slate-200">{{ events.total }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>Tampilkan:</span>
+              <select v-model="perPage" @change="applyFilters" class="py-1 px-2 text-xs rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer w-20 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+                <option :value="250">250</option>
+              </select>
+            </div>
           </div>
           <Pagination :links="events.links" />
         </div>
@@ -165,6 +178,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { debounce } from 'lodash-es';
 import { Link, router } from '@inertiajs/vue3';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -195,24 +209,31 @@ const searchQuery = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || '');
 const sortColumn = ref(props.filters?.sort || 'start_date');
 const sortDirection = ref(props.filters?.direction || 'desc');
+const perPage = ref(props.filters?.per_page || 10);
 
 function applyFilters() {
   router.get(route('events.index'), {
     search: searchQuery.value,
     status: statusFilter.value,
     sort: sortColumn.value,
-    direction: sortDirection.value
+    direction: sortDirection.value,
+    per_page: perPage.value
   }, {
     preserveState: true,
     preserveScroll: true
   });
 }
 
+const onFilterChange = debounce(() => {
+  applyFilters();
+}, 300);
+
 function resetFilters() {
   searchQuery.value = '';
   statusFilter.value = '';
   sortColumn.value = 'start_date';
   sortDirection.value = 'desc';
+  perPage.value = 10;
   applyFilters();
 }
 

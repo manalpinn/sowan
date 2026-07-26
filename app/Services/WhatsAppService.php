@@ -151,16 +151,37 @@ class WhatsAppService
     {
         $event = $guest->event;
         $checkinUrl = route('public.invitation', ['qr_code' => $guest->qr_code]);
-        $eventDate = $event->start_date ? $event->start_date->translatedFormat('d F Y') : '-';
+        $eventDate = $event->start_date ? $event->start_date->translatedFormat('l, d F Y') : '-';
+        
+        $mapsLink = $event->google_maps_link;
+        if (!empty($mapsLink) && preg_match('/<iframe.*?src=["\'](.*?)["\']/', $mapsLink, $matches)) {
+            $mapsLink = html_entity_decode($matches[1]);
+        }
 
-        return "Halo *{$guest->name}*,\n\n"
-            . "Anda diundang ke *{$event->name}* 🎉\n\n"
-            . "📅 *Tanggal:* {$eventDate}\n"
-            . "📍 *Lokasi:* {$event->location}\n"
-            . (!empty($event->google_maps_link) ? "🗺️ *Google Maps:* {$event->google_maps_link}\n" : '') . "\n"
-            . ($event->welcome_message ? "_{$event->welcome_message}_\n\n" : '')
-            . "Silakan gunakan link berikut untuk check-in:\n"
-            . "🔗 {$checkinUrl}\n\n"
-            . "Sampai jumpa di acara! 😊";
+        // Fallback pencarian peta otomatis jika link maps kosong tapi nama lokasi tersedia
+        if (empty($mapsLink) && !empty($event->location)) {
+            $mapsLink = 'https://maps.google.com/?q=' . urlencode($event->location);
+        }
+
+        $message = "Halo *{$guest->name}*,\n\n";
+        $message .= "Anda diundang ke *{$event->name}* 🎉\n\n";
+        
+        $message .= "📅 *Hari & Tanggal:* {$eventDate}\n";
+        $message .= "📍 *Lokasi:* {$event->location}\n\n";
+        
+        if ($event->welcome_message) {
+            $message .= "_{$event->welcome_message}_\n\n";
+        }
+
+        $message .= "Buka tautan berikut untuk melihat detail undangan dan *QR Code* akses Anda:\n";
+        $message .= "🔗 {$checkinUrl}\n\n";
+
+        if (!empty($mapsLink)) {
+            $message .= "🗺️ *Google Maps:* {$mapsLink}\n\n";
+        }
+
+        $message .= "Sampai jumpa di acara! 😊";
+
+        return $message;
     }
 }

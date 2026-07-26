@@ -18,7 +18,7 @@
               v-model="search"
               class="form-input search-input pl-9 h-[38px] text-sm"
               placeholder="Cari nama atau email..."
-              @input="onSearchChange"
+              @input="searchUsers"
             >
           </div>
 
@@ -50,7 +50,7 @@
               <th class="px-6 py-4">Nama & Email</th>
               <th class="px-6 py-4">Penugasan Event</th>
               <th class="px-6 py-4">Terdaftar</th>
-              <th class="px-6 py-4 text-center">Aksi</th>
+              <th class="px-6 py-4 !text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -77,7 +77,7 @@
                   </span>
                   <button 
                     @click="openViewEvents(user)"
-                    class="inline-flex items-center justify-center px-2.5 py-1.5 text-[11px] font-bold text-slate-600 bg-white border border-slate-200 hover:border-primary/30 hover:bg-primary-soft hover:text-primary transition-all rounded-md shadow-sm gap-1.5 leading-none h-[28px] cursor-pointer"
+                    class="inline-flex items-center justify-center px-2.5 py-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-[var(--card-bg)] border border-slate-200 dark:border-[var(--border)] hover:border-primary/30 hover:bg-primary-soft hover:text-primary transition-all rounded-md shadow-sm gap-1.5 leading-none h-[28px] cursor-pointer"
                   >
                     <EyeIcon class="w-3.5 h-3.5" />
                     Lihat Event
@@ -111,9 +111,21 @@
         </table>
       </div>
 
-      <div class="px-6 py-4 bg-card-bg border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="text-sm text-secondary">
-          Menampilkan <span class="font-bold text-primary">{{ users.from || 0 }}</span> – <span class="font-bold text-primary">{{ users.to || 0 }}</span> dari <span class="font-bold text-primary">{{ users.total }}</span> user
+      <div class="px-6 py-4 bg-gray-50/50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-col sm:flex-row items-center gap-4 text-sm text-gray-500 dark:text-slate-400 font-medium">
+          <div>
+            Menampilkan <span class="font-bold text-gray-700 dark:text-slate-300">{{ users.from || 0 }}</span> – <span class="font-bold text-gray-700 dark:text-slate-300">{{ users.to || 0 }}</span> dari <span class="font-bold text-gray-700 dark:text-slate-300">{{ users.total }}</span> user
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Tampilkan:</span>
+            <select v-model="perPage" @change="searchUsers" class="py-1 px-2 text-xs rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer w-20 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+              <option :value="250">250</option>
+            </select>
+          </div>
         </div>
         <Pagination :links="users.links" />
       </div>
@@ -151,7 +163,7 @@ const props = defineProps({
 });
 
 const search = ref(props.filters?.search || '');
-
+const perPage = ref(props.filters?.per_page || 10);
 const isViewModalOpen = ref(false);
 const activeUser = ref(null);
 
@@ -160,8 +172,8 @@ function openViewEvents(user) {
   isViewModalOpen.value = true;
 }
 
-const onSearchChange = debounce(() => {
-  router.get(route('users.index'), { search: search.value }, {
+const searchUsers = debounce(() => {
+  router.get(route('users.index'), { search: search.value, per_page: perPage.value }, {
     preserveState: true,
     replace: true,
   });

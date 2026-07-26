@@ -221,7 +221,7 @@ function toggleSidebar() {
 
 function toggleDark() {
   isDark.value = !isDark.value;
-  SafeStorage.setItem('dark_mode', isDark.value);
+  localStorage.setItem('dark_mode', isDark.value);
   if (isDark.value) {
     document.documentElement.classList.add('dark');
   } else {
@@ -236,7 +236,10 @@ function checkMobile() {
 onMounted(() => {
   checkMobile();
   window.addEventListener('resize', checkMobile);
-  isDark.value = SafeStorage.getItem('dark_mode') === 'true';
+  
+  // Use localStorage directly for dark mode to persist across refreshes
+  isDark.value = localStorage.getItem('dark_mode') === 'true' || (!('dark_mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  
   isSidebarCollapsed.value = SafeStorage.getItem('sidebar_collapsed') === 'true';
 
   if (isDark.value) {
@@ -246,23 +249,27 @@ onMounted(() => {
   }
 
   // Check for initial flash messages
-  if (page.props.flash.success) {
+  if (page.props.flash?.success) {
     notify.success(page.props.flash.success);
+    page.props.flash.success = null;
   }
-  if (page.props.flash.error) {
+  if (page.props.flash?.error) {
     notify.error(page.props.flash.error);
+    page.props.flash.error = null;
   }
 });
 
 // Watch for flash messages
 watch(() => page.props.flash, (flash) => {
-  if (flash.success) {
+  if (flash?.success) {
     notify.success(flash.success);
+    page.props.flash.success = null;
   }
-  if (flash.error) {
+  if (flash?.error) {
     notify.error(flash.error);
+    page.props.flash.error = null;
   }
-  if (flash.import_errors && flash.import_errors.length > 0) {
+  if (flash?.import_errors && flash.import_errors.length > 0) {
     let errorHtml = '<ul style="text-align: left; font-size: 13px; max-height: 200px; overflow-y: auto;">';
     flash.import_errors.forEach(err => {
       errorHtml += `<li style="margin-bottom: 5px;">• ${err}</li>`;
@@ -275,6 +282,7 @@ watch(() => page.props.flash, (flash) => {
       icon: 'warning',
       confirmButtonText: 'Tutup'
     });
+    page.props.flash.import_errors = null;
   }
 }, { deep: true });
 </script>

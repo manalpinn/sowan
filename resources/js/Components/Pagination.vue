@@ -5,7 +5,7 @@
         <!-- Ellipsis -->
         <span
           v-if="link.url === null && link.label === '...'"
-          class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 bg-white"
+          class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-300 ring-1 ring-inset ring-gray-300 dark:ring-slate-700 bg-white dark:bg-slate-800"
         >
           ...
         </span>
@@ -17,8 +17,8 @@
           class="relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-all duration-200 focus:z-20"
           :class="[
             link.active
-              ? 'z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600'
-              : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 bg-white',
+              ? 'z-10 bg-purple-600 dark:bg-purple-500 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600'
+              : 'text-gray-900 dark:text-slate-200 ring-1 ring-inset ring-gray-300 dark:ring-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800',
             i === 0 ? 'rounded-l-md' : '',
             i === links.length - 1 ? 'rounded-r-md' : '',
           ]"
@@ -29,7 +29,7 @@
         <!-- Disabled Links -->
         <span
           v-else
-          class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 bg-gray-50 cursor-not-allowed"
+          class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-400 dark:text-slate-500 ring-1 ring-inset ring-gray-300 dark:ring-slate-700 bg-gray-50 dark:bg-slate-900/50 cursor-not-allowed"
           :class="[
             i === 0 ? 'rounded-l-md' : '',
             i === links.length - 1 ? 'rounded-r-md' : '',

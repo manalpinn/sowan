@@ -21,6 +21,9 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
     public int $imported = 0;
     public int $skipped = 0;
     public array $importErrors = [];
+    public int $duplicateCount = 0;
+    public int $emptyNameCount = 0;
+    public int $duplicateTableCount = 0;
 
     public function __construct(
         private readonly int $eventId,
@@ -57,7 +60,7 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
 
             if (empty($name)) {
                 $this->skipped++;
-                $this->importErrors[] = "Baris " . ($rowIndex + 2) . ": Nama tamu kosong, dilewati.";
+                $this->emptyNameCount++;
                 continue;
             }
 
@@ -75,7 +78,6 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'VVIP'    => 'VVIP',
                 'REGULAR' => 'Regular',
                 'VENDOR'  => 'Vendor',
-                'MEDIA'   => 'Media',
             ];
             $type = $typeMap[$typeInput] ?? 'Regular';
 
@@ -86,7 +88,7 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
 
             if ($exists) {
                 $this->skipped++;
-                $this->importErrors[] = "Baris " . ($rowIndex + 2) . ": Tamu '{$name}' sudah terdaftar di event ini.";
+                $this->duplicateCount++;
                 continue;
             }
 
@@ -99,7 +101,7 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 
                 if ($tableExists) {
                     $this->skipped++;
-                    $this->importErrors[] = "Baris " . ($rowIndex + 2) . ": Nomor meja '{$tableNumber}' sudah terisi untuk tipe '{$type}'.";
+                    $this->duplicateTableCount++;
                     continue;
                 }
             }
@@ -122,6 +124,16 @@ class GuestsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 $this->skipped++;
                 $this->importErrors[] = "Baris " . ($rowIndex + 2) . ": " . $e->getMessage();
             }
+        }
+
+        if ($this->duplicateCount > 0) {
+            $this->importErrors[] = "{$this->duplicateCount} tamu dilewati karena namanya sudah terdaftar di event ini.";
+        }
+        if ($this->duplicateTableCount > 0) {
+            $this->importErrors[] = "{$this->duplicateTableCount} tamu dilewati karena nomor mejanya sudah terisi oleh tipe tamu yang sama.";
+        }
+        if ($this->emptyNameCount > 0) {
+            $this->importErrors[] = "{$this->emptyNameCount} baris dilewati karena nama tamu kosong.";
         }
     }
 }

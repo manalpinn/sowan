@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased py-10 px-4" :style="{ '--theme-primary': event.theme_color || '#7C3AED', '--theme-contrast': getContrastColor(event.theme_color || '#7C3AED') }">
+  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased py-10 px-4" :style="{ '--theme-primary': event.theme_color || '#7C3AED', '--theme-contrast': getContrastColor(event.theme_color || '#7C3AED', event.custom_text_color), '--theme-text': getThemeTextColor(event.theme_color || '#7C3AED', event.custom_text_color) }">
     <div class="max-w-xl mx-auto">
       <!-- Logo -->
       <div class="flex justify-center mb-8">
         <Link href="/" class="flex items-center gap-3 group no-underline">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg transition-all duration-300 group-hover:rotate-6 group-hover:scale-110" style="background-color: var(--theme-primary)">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg transition-all duration-300 group-hover:rotate-6 group-hover:scale-110" style="background-color: #7C3AED">
             <UsersIcon class="h-5 w-5" stroke-width="2.5" />
           </div>
-          <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">SOWAN<span style="color: var(--theme-primary)">.</span></span>
+          <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">SOWAN<span style="color: #7C3AED">.</span></span>
         </Link>
       </div>
 
@@ -26,7 +26,7 @@
           <!-- Welcome Message -->
           <div class="text-center mb-8 sm:mb-10">
             <p class="text-slate-500 text-sm sm:text-base font-medium mb-1 sm:mb-2">Kepada Yth.</p>
-            <h2 class="text-2xl sm:text-3xl font-black mb-3 sm:mb-4 break-words" :style="{ color: 'var(--theme-primary)' }">{{ guest.name }}</h2>
+            <h2 class="text-2xl sm:text-3xl font-black mb-3 sm:mb-4 break-words" :style="{ color: 'var(--theme-text)' }">{{ guest.name }}</h2>
             <div class="inline-block px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase">
               {{ guest.type }}
             </div>
@@ -35,7 +35,7 @@
           <!-- Event Details -->
           <div class="space-y-6 bg-slate-50 rounded-3xl p-6 mb-10">
             <div class="flex gap-4">
-              <div class="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0" style="color: var(--theme-primary)">
+              <div class="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0" style="color: var(--theme-text)">
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
               <div>
@@ -45,7 +45,7 @@
               </div>
             </div>
             <div class="flex gap-4">
-              <div class="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0" style="color: var(--theme-primary)">
+              <div class="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0" style="color: var(--theme-text)">
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               </div>
               <div class="flex-1">
@@ -108,7 +108,7 @@
                   </div>
                   
                   <div class="flex items-center justify-center gap-4 sm:gap-8 mb-6">
-                    <button type="button" @click="form.plus_one = Math.max(0, form.plus_one - 1)" class="h-14 w-14 rounded-2xl bg-white border-2 flex items-center justify-center transition-all shadow-sm active:scale-90" :style="{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }" onmouseover="this.style.backgroundColor='var(--theme-primary)'; this.style.color='white'" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--theme-primary)'">
+                    <button type="button" @click="form.plus_one = Math.max(0, form.plus_one - 1)" class="h-14 w-14 rounded-2xl bg-white border-2 flex items-center justify-center transition-all shadow-sm active:scale-90" :style="{ borderColor: 'var(--theme-text)', color: 'var(--theme-text)' }" onmouseover="this.style.backgroundColor='var(--theme-text)'; this.style.color='white'" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--theme-text)'">
                       <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </button>
                     
@@ -117,13 +117,13 @@
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Orang</span>
                     </div>
 
-                    <button type="button" @click="form.plus_one = Math.min(3, form.plus_one + 1)" class="h-14 w-14 rounded-2xl bg-white border-2 flex items-center justify-center transition-all shadow-sm active:scale-90" :style="{ borderColor: 'var(--theme-primary)', color: 'var(--theme-primary)' }" onmouseover="this.style.backgroundColor='var(--theme-primary)'; this.style.color='white'" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--theme-primary)'">
+                    <button type="button" @click="form.plus_one = Math.min(3, form.plus_one + 1)" class="h-14 w-14 rounded-2xl bg-white border-2 flex items-center justify-center transition-all shadow-sm active:scale-90" :style="{ borderColor: 'var(--theme-text)', color: 'var(--theme-text)' }" onmouseover="this.style.backgroundColor='var(--theme-text)'; this.style.color='white'" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--theme-text)'">
                       <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </button>
                   </div>
                   
                   <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-3 border border-slate-200 text-center">
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80" style="color: var(--theme-primary)">Satu undangan berlaku untuk {{ form.plus_one + 1 }} Pax</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80" style="color: var(--theme-text)">Satu undangan berlaku untuk {{ form.plus_one + 1 }} Pax</p>
                   </div>
                 </div>
               </div>
@@ -192,7 +192,8 @@ const rsvpOptions = [
   { value: 'declined', label: 'Absen', icon: XMarkIcon },
 ];
 
-const getContrastColor = (hexColor) => {
+const getContrastColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
   if (!hexColor) return '#ffffff';
   const hex = hexColor.replace('#', '');
   if (hex.length !== 6) return '#ffffff';
@@ -201,6 +202,19 @@ const getContrastColor = (hexColor) => {
   const b = parseInt(hex.substr(4, 2), 16);
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return (yiq >= 128) ? '#1e293b' : '#ffffff';
+};
+
+const getThemeTextColor = (hexColor, customColor) => {
+  if (customColor) return customColor;
+  if (!hexColor) return '#7C3AED';
+  const hex = hexColor.replace('#', '');
+  if (hex.length !== 6) return '#7C3AED';
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  // If the color is too bright, return a dark fallback color for readability on white background
+  return (yiq >= 128) ? '#1e293b' : hexColor;
 };
 
 const submitRsvp = async () => {

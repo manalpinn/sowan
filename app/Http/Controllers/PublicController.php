@@ -41,13 +41,14 @@ class PublicController extends Controller
                 'description' => $guest->event->description,
                 'location' => $guest->event->location,
                 'google_maps_embed_url' => $guest->event->google_maps_embed_url,
-                'start_date' => $guest->event->start_date->format('l, d F Y'),
+                'start_date' => $guest->event->start_date->translatedFormat('l, d F Y'),
                 'time_formatted' => ($guest->event->start_time && $guest->event->end_time) 
                     ? 'Pukul ' . \Carbon\Carbon::parse($guest->event->start_time)->format('H.i') . ' - ' . \Carbon\Carbon::parse($guest->event->end_time)->format('H.i') . ' WIB' 
                     : null,
                 'welcome_message' => $guest->event->welcome_message,
                 'invitation_template' => $guest->event->invitation_template,
                 'theme_color' => $guest->event->theme_color,
+                'custom_text_color' => $guest->event->custom_text_color,
                 'banner' => $guest->event->banner,
             ]
         ]);

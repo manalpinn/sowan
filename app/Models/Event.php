@@ -25,6 +25,7 @@ class Event extends Model
         'end_time',
         'banner',
         'theme_color',
+        'custom_text_color',
         'welcome_message',
         'attendance_type',
         'invitation_template',
@@ -80,24 +81,9 @@ class Event extends Model
 
     public function getEventStatusAttribute(): string
     {
-        if (!(bool)$this->attributes['is_active']) {
-            return 'Selesai'; // if forcefully deactivated
-        }
-
         $now = now(config('app.timezone'));
         $startDate = $this->start_date;
         $endDate = $this->end_date ?? $this->start_date;
-
-        if ($startDate) {
-            $startCarbon = \Carbon\Carbon::parse($startDate, config('app.timezone'))->startOfDay();
-            if ($this->start_time) {
-                $startParts = explode(':', $this->start_time);
-                $startCarbon->setHour((int)$startParts[0])->setMinute((int)$startParts[1])->setSecond((int)($startParts[2] ?? 0));
-            }
-            if ($now->lt($startCarbon)) {
-                return 'Akan Datang';
-            }
-        }
 
         if ($endDate) {
             $endCarbon = \Carbon\Carbon::parse($endDate, config('app.timezone'))->endOfDay();
@@ -107,6 +93,21 @@ class Event extends Model
             }
             if ($now->gt($endCarbon)) {
                 return 'Selesai';
+            }
+        }
+
+        if (!(bool)$this->attributes['is_active']) {
+            return 'Nonaktif';
+        }
+
+        if ($startDate) {
+            $startCarbon = \Carbon\Carbon::parse($startDate, config('app.timezone'))->startOfDay();
+            if ($this->start_time) {
+                $startParts = explode(':', $this->start_time);
+                $startCarbon->setHour((int)$startParts[0])->setMinute((int)$startParts[1])->setSecond((int)($startParts[2] ?? 0));
+            }
+            if ($now->lt($startCarbon)) {
+                return 'Akan Datang';
             }
         }
 

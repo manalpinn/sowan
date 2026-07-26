@@ -31,13 +31,25 @@
 
           <div class="form-group">
             <label class="form-label">{{ user ? 'Ganti Password (Kosongkan jika tidak ingin mengubah)' : 'Password' }} <span v-if="!user" class="text-danger">*</span></label>
-            <input type="password" v-model="form.password" class="form-input" :required="!user">
+            <div class="relative">
+              <input :type="showPassword ? 'text' : 'password'" v-model="form.password" class="form-input pr-10" :required="!user">
+              <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none">
+                <EyeIcon v-if="!showPassword" class="h-5 w-5" />
+                <EyeSlashIcon v-else class="h-5 w-5" />
+              </button>
+            </div>
             <div v-if="form.errors.password" class="form-error">{{ form.errors.password }}</div>
           </div>
 
           <div class="form-group">
             <label class="form-label">Konfirmasi Password <span v-if="!user" class="text-danger">*</span></label>
-            <input type="password" v-model="form.password_confirmation" class="form-input" :required="!user">
+            <div class="relative">
+              <input :type="showPasswordConf ? 'text' : 'password'" v-model="form.password_confirmation" class="form-input pr-10" :required="!user">
+              <button type="button" @click="showPasswordConf = !showPasswordConf" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none">
+                <EyeIcon v-if="!showPasswordConf" class="h-5 w-5" />
+                <EyeSlashIcon v-else class="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           <div class="flex gap-4 mt-8">
@@ -57,14 +69,18 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import MultiSelectEvent from '@/Components/MultiSelectEvent.vue';
-import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { CheckIcon, XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   user: Object,
 });
+
+const showPassword = ref(false);
+const showPasswordConf = ref(false);
 
 const form = useForm({
   name: props.user?.name ?? '',

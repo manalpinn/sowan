@@ -77,12 +77,12 @@
           <div class="grid grid-2 gap-6">
             <div class="form-group">
               <label class="form-label">Waktu Mulai <span class="text-danger">*</span></label>
-              <input type="time" v-model="form.start_time" class="form-input" :disabled="isPast" required>
+              <input type="time" lang="en-GB" v-model="form.start_time" class="form-input" :disabled="isPast" required>
               <div v-if="form.errors.start_time" class="form-error">{{ form.errors.start_time }}</div>
             </div>
             <div class="form-group">
               <label class="form-label">Waktu Selesai <span class="text-danger">*</span></label>
-              <input type="time" v-model="form.end_time" class="form-input" :disabled="isPast" required>
+              <input type="time" lang="en-GB" v-model="form.end_time" class="form-input" :disabled="isPast" required>
               <div v-if="form.errors.end_time" class="form-error">{{ form.errors.end_time }}</div>
             </div>
           </div>
@@ -155,22 +155,34 @@
             <textarea v-model="form.description" class="form-textarea" rows="3" :disabled="isPast" placeholder="Deskripsi singkat acara..."></textarea>
           </div>
 
-          <div class="grid grid-2 gap-6">
-            <div class="form-group">
-              <label class="form-label">Warna Tema (HEX)</label>
-              <div class="flex gap-2">
-                <input type="color" v-model="form.theme_color" class="h-10 w-12 rounded-lg border border-gray-300 p-1" :disabled="isPast">
-                <input type="text" v-model="form.theme_color" class="form-input" :disabled="isPast" placeholder="#7C3AED">
+            <div class="grid grid-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Warna Tema (HEX) <span class="text-danger">*</span></label>
+                <div class="flex gap-2">
+                  <input type="color" v-model="form.theme_color" class="h-10 w-12 rounded-lg border border-gray-300 p-1" :disabled="isPast">
+                  <input type="text" v-model="form.theme_color" class="form-input" :disabled="isPast" placeholder="#7C3AED">
+                </div>
+                <div v-if="form.errors.theme_color" class="form-error">{{ form.errors.theme_color }}</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Warna Teks Override <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-1">(Opsional)</span></label>
+                <div class="flex gap-2">
+                  <input type="color" v-model="form.custom_text_color" class="h-10 w-12 rounded-lg border border-gray-300 p-1" :disabled="isPast">
+                  <input type="text" v-model="form.custom_text_color" class="form-input" :disabled="isPast" placeholder="#1E293B">
+                  <button type="button" @click="form.custom_text_color = null" class="btn bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-lg text-sm" :disabled="isPast">Reset</button>
+                </div>
+                <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Jika dikosongkan, warna teks akan otomatis menyesuaikan tingkat kecerahan warna tema.</div>
+                <div v-if="form.errors.custom_text_color" class="form-error">{{ form.errors.custom_text_color }}</div>
               </div>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-6">
               <label class="form-label">Status</label>
               <select v-model="form.is_active" class="form-select" :disabled="isPast">
                 <option :value="true">Aktif</option>
                 <option :value="false">Non-aktif</option>
               </select>
             </div>
-          </div>
 
           <div class="grid grid-2 gap-6">
             <div class="form-group">
@@ -322,6 +334,7 @@ const form = useForm({
   google_maps_link: props.event?.google_maps_link ?? '',
   description: props.event?.description ?? '',
   theme_color: props.event?.theme_color ?? '#7C3AED',
+  custom_text_color: props.event?.custom_text_color ?? null,
   welcome_message: props.event?.welcome_message ?? '',
   attendance_type: props.event?.attendance_type ?? 'checkin_only',
   invitation_template: props.event?.invitation_template ?? 'formal',

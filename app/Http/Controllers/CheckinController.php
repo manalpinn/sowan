@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CheckinsExport;
 use App\Models\Checkin;
 use App\Models\Event;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -10,6 +11,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CheckinController extends Controller
 {
@@ -154,7 +156,7 @@ class CheckinController extends Controller
         ]);
     }
 
-    public function exportCsv(Request $request)
+    public function exportExcel(Request $request)
     {
         $user = $request->user();
         $query = Checkin::query()->with(['guest', 'event']);
@@ -173,35 +175,9 @@ class CheckinController extends Controller
         }
 
         $checkins = $query->orderBy('checkin_time', 'asc')->get();
+        $fileName = 'log-kedatangan-' . now()->format('Ymd-His') . '.xlsx';
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="log-kedatangan-' . now()->format('Ymd-His') . '.csv"',
-        ];
-
-        $callback = function () use ($checkins) {
-            $file = fopen('php://output', 'w');
-            // BOM for Excel UTF-8 compatibility
-            fputs($file, "\xEF\xBB\xBF");
-            fputcsv($file, ['No', 'Nama Tamu', 'Tipe', 'Token', 'Event', 'Waktu Check-in', 'Waktu Check-out', 'Status', 'Metode']);
-
-            foreach ($checkins as $i => $c) {
-                fputcsv($file, [
-                    $i + 1,
-                    $c->guest->name ?? '-',
-                    $c->guest->type ?? '-',
-                    $c->guest->qr_code ?? '-',
-                    $c->event->name ?? '-',
-                    $c->checkin_time?->format('d/m/Y H:i') ?? '-',
-                    $c->checkout_time?->format('d/m/Y H:i') ?? '-',
-                    $c->status === 'checkout' ? 'Keluar' : 'Masuk',
-                    $c->formatted_method,
-                ]);
-            }
-            fclose($file);
-        };
-
-        return Response::stream($callback, 200, $headers);
+        return Excel::download(new CheckinsExport($checkins), $fileName);
     }
 
     public function exportPdf(Request $request)

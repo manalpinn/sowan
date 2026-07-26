@@ -1,7 +1,7 @@
 <template>
   <AdminLayout
     :page-title="guest ? 'Edit Tamu' : 'Tambah Tamu'"
-    :breadcrumbs="[{ label: 'Dashboard', href: route('dashboard') }, { label: 'Tamu', href: route('guests.index') }, { label: guest ? 'Edit' : 'Tambah' }]"
+    :breadcrumbs="[{ label: 'Dashboard', href: route('dashboard') }, { label: 'Tamu', href: route('guests.index', { event_id: guest?.event_id ?? default_event_id }) }, { label: guest ? 'Edit' : 'Tambah' }]"
   >
     <div class="card" style="max-width: 600px; margin: 0 auto;">
       <div class="card-header">
@@ -9,14 +9,17 @@
       </div>
       <div class="card-body">
         <form @submit.prevent="submit">
-          <div class="form-group" v-if="events.length > 1">
-            <label class="form-label">Event <span class="text-danger">*</span></label>
-            <select v-model="form.event_id" class="form-select" required>
-              <option value="" disabled>Pilih Event</option>
-              <option v-for="e in events" :key="e.id" :value="e.id">{{ e.name }}</option>
-            </select>
-            <div v-if="form.errors.event_id" class="form-error">{{ form.errors.event_id }}</div>
+          <div class="mb-5 p-4 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-3 text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider opacity-80 mb-0.5">Event Saat Ini</p>
+              <p class="text-sm font-bold m-0">{{ selectedEventName }}</p>
+            </div>
           </div>
+          <input type="hidden" v-model="form.event_id">
+          <div v-if="form.errors.event_id" class="form-error mb-4">{{ form.errors.event_id }}</div>
 
           <div class="form-group">
             <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
@@ -45,7 +48,6 @@
                 <option value="VIP">VIP</option>
                 <option value="VVIP">VVIP</option>
                 <option value="Vendor">Vendor</option>
-                <option value="Media">Media</option>
               </select>
               <div v-if="form.errors.type" class="form-error">{{ form.errors.type }}</div>
             </div>
@@ -61,7 +63,7 @@
               <CheckIcon v-if="!form.processing" class="h-4 w-4 mr-1" stroke-width="2.5" />
               {{ form.processing ? 'Menyimpan...' : (guest ? 'Simpan Perubahan' : 'Tambah Tamu') }}
             </button>
-            <Link :href="route('guests.index')" class="btn btn-secondary">
+            <Link :href="route('guests.index', { event_id: form.event_id })" class="btn btn-secondary">
               <XMarkIcon class="h-4 w-4 mr-1" />
               Batal
             </Link>
@@ -74,6 +76,7 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 
@@ -90,6 +93,11 @@ const form = useForm({
   phone: props.guest?.phone ?? '',
   type: props.guest?.type ?? 'Regular',
   table_number: props.guest?.table_number ?? '',
+});
+
+const selectedEventName = computed(() => {
+  const event = props.events.find(e => e.id === form.event_id);
+  return event ? event.name : 'Pilih Event';
 });
 
 function submit() {
