@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Logo">
   
   <h1>🎉 Sowan (Buku Tamu Digital)</h1>
-  <p><strong>Sistem Manajemen Event & Buku Tamu Digital Modern</strong></p>
+  <p><strong>Aplikasi Buku Tamu & Manajemen Event yang Simpel dan Modern</strong></p>
 
   <p>
     <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel" />
@@ -13,180 +13,186 @@
   </p>
   
   <p>
-    <em>Ucapkan selamat tinggal pada buku tamu kertas manual, antrean panjang di meja penerima tamu, dan data acara yang berantakan. Sowan hadir untuk merevolusi cara Anda mengelola kehadiran tamu acara.</em>
+    <em>Nggak perlu lagi pakai buku tamu kertas atau antre panjang di meja resepsionis. Sowan bikin urusan check-in tamu event kamu jadi lebih rapi, cepat, dan terdigitalisasi.</em>
   </p>
 </div>
 
 ---
 
-## 📌 Pendahuluan
+## 📌 Apa itu Sowan?
 
-**Sowan** adalah platform buku tamu digital dan manajemen acara berskala *enterprise* yang dirancang khusus untuk acara modern seperti pernikahan, pertemuan perusahaan, seminar, dan pesta eksklusif. 
+**Sowan** adalah aplikasi buku tamu digital dan manajemen event yang dibikin khusus untuk mempermudah acara seperti pernikahan, gathering, seminar, atau pesta lainnya. 
 
-Dibangun dengan mengutamakan skalabilitas dan pengalaman pengguna, Sowan memanfaatkan kekuatan **Laravel 11/12** di sisi *backend* dan **Vue.js 3** melalui **Inertia.js** di sisi *frontend* untuk memberikan pengalaman aplikasi satu halaman (Single Page Application/SPA) yang mulus tanpa kerumitan membangun API yang terpisah.
+Aplikasi ini dibangun pakai **Laravel 11/12** untuk backend-nya dan **Vue.js 3** via **Inertia.js** di frontend. Hasilnya? Sebuah *Single Page Application* (SPA) yang kencang dan mulus, tanpa repot bikin API yang terpisah.
 
-## ✨ Fitur Utama & Keunggulan
+## ✨ Fitur Utama
 
-### 🎫 Manajemen Acara Terpadu
-- **Multi-Event:** Kelola berbagai acara secara bersamaan di dalam satu sistem.
-- **Kustomisasi:** Sesuaikan tema, warna, dan pesan selamat datang acara agar sesuai dengan *branding* Anda.
-- **Layanan Lokasi:** Terintegrasi dengan tautan dan peta *embed* Google Maps untuk navigasi yang mudah.
-- **Batas Waktu:** Atur tanggal dan waktu mulai/selesai untuk membatasi proses *check-in* secara otomatis.
+### 🎫 Manajemen Event Terpusat
+- **Banyak Event Sekaligus:** Kamu bisa bikin dan kelola banyak event dalam satu sistem.
+- **Kustomisasi:** Sesuaikan tema, warna, dan ucapan selamat datang di halaman depan sesuai selera.
+- **Peta Lokasi:** Tersedia integrasi link dan embed Google Maps biar tamu nggak nyasar.
+- **Batas Waktu Check-in:** Set kapan event mulai dan selesai, sistem bakal otomatis nutup akses check-in kalau udah lewat batas waktu.
 
-### 👥 Manajemen Tamu Tingkat Lanjut
-- **Impor Massal:** Impor ratusan tamu dengan mudah menggunakan templat Excel/CSV.
-- **Pelacakan RSVP:** Pantau siapa yang akan hadir, tidak hadir, dan kelola batas Pax (tamu tambahan).
-- **Pembuatan Kode QR:** Buat kode QR unik secara otomatis untuk setiap tamu yang diundang.
-- **Undangan PDF:** Unduh undangan PDF yang dipersonalisasi dan dilengkapi kode QR untuk dicetak secara tradisional.
+### 👥 Urusan Tamu
+- **Import Masal:** Punya ratusan tamu? Tinggal import pakai file Excel/CSV.
+- **RSVP & Kuota:** Pantau siapa yang memastikan datang, yang absen, dan atur batasan bawaan tamu tambahan (pax).
+- **Auto QR Code:** Tiap tamu otomatis dibuatin QR code unik untuk check-in.
+- **Undangan PDF:** Tamu bisa download undangan versi PDF yang udah nempel sama QR code-nya biar gampang dicetak.
 
-### 💬 Integrasi WhatsApp (Didukung oleh Fonnte)
-- **Undangan Otomatis:** Kirim undangan WhatsApp yang dipersonalisasi secara massal dengan satu klik.
-- **Penyiaran Mirip Manusia (Human-like):** Dilengkapi dengan jeda (loop delays) dan mekanisme anti-spam bawaan untuk memastikan pengiriman pesan massal aman dan tidak diblokir.
+### 💬 Blast WhatsApp (via Fonnte)
+- **Kirim Undangan Sekali Klik:** Kirim undangan WA secara massal langsung dari dashboard.
+- **Anti Spam:** Dilengkapi jeda pengiriman (delay) otomatis supaya blast WA aman dan nggak gampang diblokir.
 
-### 📱 Sistem Pemindai Cerdas (Scanner)
-- **Pemindai Berbasis Web:** Tidak butuh aplikasi tambahan! Pindai kode QR langsung dari browser *mobile* menggunakan kamera perangkat (`html5-qrcode`).
-- **Dukungan Mode Offline:** Internet mati? Tidak masalah. Unduh data tamu ke penyimpanan lokal browser, lakukan pemindaian secara *offline*, dan sinkronisasikan kembali saat koneksi pulih.
-- **Check-in Manual:** Cari berdasarkan nama atau masukkan token manual untuk tamu yang lupa membawa kode QR mereka.
-- **Umpan Balik Suara:** Notifikasi audio (bunyi bip) saat pemindaian berhasil untuk lingkungan acara yang serba cepat.
+### 📱 Scanner Pintar
+- **Web-based Scanner:** Tinggal buka browser hp, langsung bisa scan QR pakai kamera bawaan (`html5-qrcode`). Nggak butuh install aplikasi tambahan dari PlayStore/AppStore.
+- **Offline Mode:** Pas event tiba-tiba internet mati atau sinyal jelek? Tenang, data tamu bisa di-download ke local storage. Scanner bakal tetap jalan offline, dan otomatis sinkron lagi ke server waktu internet nyala.
+- **Check-in Manual:** Kalau tamu lupa bawa QR, panitia bisa cari nama atau masukin token secara manual di form check-in.
+- **Notif Suara:** Ada bunyi "beep" tiap berhasil scan, ngebantu banget biar panitia tahu check-in sukses tanpa harus bolak-balik ngecek layar hp.
 
-### 🛡️ Keamanan & Autentikasi
-- **Dukungan Login OTP:** Aktifkan proses login yang aman menggunakan OTP yang dikirimkan melalui email khusus untuk Admin dan Superadmin.
+### 🛡️ Keamanan
+- **Login OTP:** Ada fitur keamanan ekstra buat login Admin/Superadmin pakai OTP yang dikirim ke email.
 
-### 📊 Dasbor & Analitik Real-time
-- **Statistik Langsung:** Pantau total tamu, yang sudah *check-in*, *check-out*, dan status RSVP secara *real-time*.
-- **Grafik Interaktif:** Representasi data visual yang indah didukung oleh ApexCharts.
-- **Pelaporan & Ekspor:** Buat catatan kehadiran yang komprehensif dan ekspor ke dalam format Excel atau PDF yang rapi untuk analisis pasca-acara.
+### 📊 Dashboard & Statistik
+- **Real-time Data:** Pantau langsung jumlah tamu undangan, yang udah masuk, yang keluar, dan status RSVP secara langsung.
+- **Grafik Interaktif:** Visualisasi data yang memanjakan mata pakai ApexCharts.
+- **Export Data:** Gampang kalau mau rekap kehadiran tamu pasca-event, tinggal export ke file Excel atau PDF.
 
-## 🔐 Peran & Hak Akses
+## 🔐 Hak Akses (Role)
 
-Sowan menggunakan sistem *Role-Based Access Control* (RBAC) yang tangguh menggunakan `spatie/laravel-permission`:
+Sowan pakai sistem hak akses (RBAC) dari `spatie/laravel-permission`:
 
-1. **Superadmin**: Akses penuh ke seluruh sistem. Dapat membuat acara, mengelola pengguna, dan menetapkan peran.
-2. **Event Admin**: Dapat mengelola tamu, melihat statistik, dan mengoperasikan pemindai khusus untuk acara yang ditugaskan kepada mereka.
-3. **Scanner/Receptionist**: Akses terbatas yang dirancang khusus hanya untuk mengoperasikan halaman pemindai QR untuk acara yang ditugaskan.
+1. **Superadmin**: Bos besar. Bisa bikin event, kelola user, dan ngatur role.
+2. **Event Admin**: Cuma bisa kelola tamu, liat statistik, dan pakai scanner khusus buat event yang ditugasin ke dia.
+3. **Scanner/Receptionist**: Cuma dikasih akses buat buka halaman scanner QR untuk check-in tamu. Nggak bisa akses data lain.
 
 ---
 
-## 🛠 Detail Teknologi
+## 🛠 Tech Stack
 
-**Arsitektur Backend:**
-- Kerangka Kerja (Framework): [Laravel](https://laravel.com/)
-- Basis Data: MySQL / PostgreSQL / SQLite
-- Autentikasi: Laravel Breeze + Implementasi OTP Kustom
-- Antrean (Queues): Antrean Database / Redis untuk menangani pesan WhatsApp massal
-- Excel/PDF: `maatwebsite/excel` & `barryvdh/laravel-dompdf`
+**Backend:**
+- Framework: [Laravel](https://laravel.com/)
+- Database: MySQL / PostgreSQL / SQLite
+- Auth: Laravel Breeze + Custom OTP
+- Queues: Database / Redis (buat handle antrean blast WA biar server nggak kepayahan)
+- Export Excel/PDF: `maatwebsite/excel` & `barryvdh/laravel-dompdf`
 
-**Arsitektur Frontend:**
-- Kerangka Kerja (Framework): [Vue.js 3](https://vuejs.org/) (Composition API)
-- Jembatan (Bridge): [Inertia.js](https://inertiajs.com/)
+**Frontend:**
+- Framework: [Vue.js 3](https://vuejs.org/) (Composition API)
+- Bridge: [Inertia.js](https://inertiajs.com/)
 - Styling: [Tailwind CSS](https://tailwindcss.com/)
-- Pemindai: [html5-qrcode](https://github.com/mebjas/html5-qrcode)
-- Peringatan (Alerts): SweetAlert2
+- Scanner: [html5-qrcode](https://github.com/mebjas/html5-qrcode)
+- Alerts: SweetAlert2
 
 ---
 
-## 🚀 Memulai
+## 🚀 Cara Install di Local (Development)
 
-Ikuti petunjuk di bawah ini untuk menyalin dan menjalankan proyek ini di mesin lokal Anda untuk tujuan pengembangan dan pengujian.
+Kalau kamu mau jalanin project ini di laptop/PC buat diutak-atik, ikuti langkah ini ya:
 
-### Prasyarat
-
-Pastikan sistem Anda memenuhi persyaratan berikut:
+### Syarat
 - PHP >= 8.2
 - Composer
 - Node.js (v18+) & npm
-- Server Basis Data (MySQL/MariaDB/PostgreSQL/SQLite)
-- Akun & API Token [Fonnte](https://fonnte.com/) (Opsional, untuk fitur WhatsApp)
+- Database (MySQL/MariaDB/PostgreSQL/SQLite)
+- Akun & API Token [Fonnte](https://fonnte.com/) (Opsional, khusus kalau mau nyoba fitur WA)
 
-### Panduan Instalasi
+### Langkah-langkah
 
-1. **Klon repositori**
+1. **Clone Repo**
    ```bash
    git clone https://github.com/manalpinn/sowan.git
    cd sowan
    ```
 
-2. **Instal Dependensi PHP**
+2. **Install Package PHP**
    ```bash
    composer install
    ```
 
-3. **Instal Dependensi JavaScript**
+3. **Install Package JavaScript**
    ```bash
    npm install
    ```
 
-4. **Pengaturan Lingkungan (Environment)**
-   Salin file contoh environment dan hasilkan *application key* Anda:
+4. **Siapin .env**
+   Copy file env example dan generate app key:
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
-   
-   *Selanjutnya, buka file `.env` dan konfigurasikan pengaturan basis data Anda (`DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, dll.).*
+   *Jangan lupa buka file `.env` dan sesuaikan config database-nya ya (`DB_CONNECTION`, `DB_DATABASE`, dll).*
 
-5. **Jalankan Migrasi & Seeder**
-   Ini akan menyiapkan tabel-tabel basis data dan mengisi pengguna Superadmin serta peran bawaan.
+5. **Migrate & Seed Database**
+   Biar struktur tabelnya dibuat dan langsung ada akun Superadmin bawaan:
    ```bash
    php artisan migrate --seed
    ```
 
-6. **Konfigurasi Antrean Latar Belakang (Penting!)**
-   Karena pesan WhatsApp massal dan email diproses di latar belakang untuk mencegah masalah batas waktu server (timeout), Anda harus mengonfigurasi *queue driver* Anda di `.env`:
+6. **Setting Queue (Penting!)**
+   Karena kirim WA & Email jalannya di background biar web nggak *freeze*, pastikan ubah line ini di `.env`:
    ```env
    QUEUE_CONNECTION=database
    ```
 
-7. **Konfigurasi API WhatsApp Fonnte (Opsional)**
-   Untuk mengaktifkan undangan WhatsApp dan OTP, tambahkan token Fonnte Anda ke file `.env`:
+7. **Setting Fonnte (Opsional)**
+   Kalau mau coba fitur WA, masukin token Fonnte kamu di `.env`:
    ```env
-   FONNTE_TOKEN=token_anda_disini
+   FONNTE_TOKEN=token_kamu_disini
    ```
 
-8. **Build Aset Frontend**
-   Kompilasi komponen Vue dan gaya Tailwind:
+8. **Build Frontend**
+   Biar styling Tailwind dan Vue-nya berhasil dikompilasi:
    ```bash
    npm run build
    
-   # Atau, jika Anda sedang aktif mengembangkan (development):
+   # Atau kalau lagi mode aktif ngoding (development):
    npm run dev
    ```
 
 9. **Jalankan Aplikasi**
-   Buka jendela terminal baru dan jalankan server pengembangan Laravel:
+   Buka terminal baru, jalankan server pengembangan Laravel:
    ```bash
    php artisan serve
    ```
    
-10. **Jalankan Pekerja Antrean (Queue Worker)**
-    Buka *satu lagi* jendela terminal untuk memproses pekerjaan di latar belakang (seperti mengirim pesan WhatsApp):
+10. **Jalankan Queue Worker**
+    Buka *satu tab terminal lagi* khusus buat ngejalanin proses background (seperti antrean email/WA):
     ```bash
     php artisan queue:work
     ```
 
 ---
 
-## 📸 Tangkapan Layar (Screenshots)
+## 📸 Screenshots
 
-*(Kami menyarankan untuk menambahkan tangkapan layar di sini untuk memamerkan UI Anda yang indah. Berikut adalah *placeholder* yang disarankan)*
+- **Dashboard:**
+  
+  ![Tangkapan Layar Dashboard](public/screenshots/dashboard.png)
 
-- **Dasbor:** `![Tangkapan Layar Dasbor](path/to/dashboard.png)`
-- **Manajemen Acara:** `![Pengaturan Acara](path/to/event.png)`
-- **Tampilan Pemindai:** `![Pemindai QR](path/to/scanner.png)`
-- **Undangan Publik:** `![Halaman RSVP Publik](path/to/rsvp.png)`
+- **Manajemen Event:**
+  
+  ![Pengaturan Acara](public/screenshots/event.png)
+
+- **Tampilan Scanner:**
+  
+  ![Pemindai QR](public/screenshots/scanner.png)
+
+- **Undangan Publik:**
+  
+  ![Halaman RSVP Publik](public/screenshots/rsvp.png)
 
 ---
 
-## 🤝 Berkontribusi
+## 🤝 Kontribusi
 
-Kontribusi adalah hal yang membuat komunitas *open-source* menjadi tempat yang luar biasa untuk belajar, menginspirasi, dan berkreasi. Segala kontribusi yang Anda buat akan **sangat dihargai**.
+Mau ikut ngembangin Sowan? Boleh banget! Bantuan dalam bentuk *pull request* sekecil apapun akan sangat diapresiasi.
 
-1. Fork Proyek Ini
-2. Buat Cabang Fitur Anda (`git checkout -b feature/FiturLuarBiasa`)
-3. Lakukan Commit pada Perubahan Anda (`git commit -m 'Menambahkan beberapa FiturLuarBiasa'`)
-4. Push ke Cabang (`git push origin feature/FiturLuarBiasa`)
-5. Buka sebuah Pull Request
+1. Fork repo ini
+2. Bikin branch baru buat fitur kamu (`git checkout -b feature/FiturKeren`)
+3. Commit perubahan lu (`git commit -m 'Nambahin beberapa fitur keren nih'`)
+4. Push ke branch (`git push origin feature/FiturKeren`)
+5. Bikin Pull Request!
 
 ## 📄 Lisensi
 
-Didistribusikan di bawah Lisensi MIT. Lihat `LICENSE` untuk informasi lebih lanjut.
+Project ini dirilis pakai Lisensi MIT. Intinya bebas dipakai dan dimodifikasi. Cek file `LICENSE` buat detail lengkapnya.
