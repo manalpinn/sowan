@@ -42,13 +42,15 @@ Dibangun dengan mengutamakan skalabilitas dan pengalaman pengguna, Sowan memanfa
 ### 💬 Integrasi WhatsApp (Didukung oleh Fonnte)
 - **Undangan Otomatis:** Kirim undangan WhatsApp yang dipersonalisasi secara massal dengan satu klik.
 - **Penyiaran Mirip Manusia (Human-like):** Dilengkapi dengan jeda (loop delays) dan mekanisme anti-spam bawaan untuk memastikan pengiriman pesan massal aman dan tidak diblokir.
-- **Dukungan Login OTP:** Aktifkan proses login yang mudah tanpa kata sandi menggunakan OTP yang dikirimkan langsung ke WhatsApp untuk keamanan tambahan.
 
 ### 📱 Sistem Pemindai Cerdas (Scanner)
 - **Pemindai Berbasis Web:** Tidak butuh aplikasi tambahan! Pindai kode QR langsung dari browser *mobile* menggunakan kamera perangkat (`html5-qrcode`).
 - **Dukungan Mode Offline:** Internet mati? Tidak masalah. Unduh data tamu ke penyimpanan lokal browser, lakukan pemindaian secara *offline*, dan sinkronisasikan kembali saat koneksi pulih.
 - **Check-in Manual:** Cari berdasarkan nama atau masukkan token manual untuk tamu yang lupa membawa kode QR mereka.
 - **Umpan Balik Suara:** Notifikasi audio (bunyi bip) saat pemindaian berhasil untuk lingkungan acara yang serba cepat.
+
+### 🛡️ Keamanan & Autentikasi
+- **Dukungan Login OTP:** Aktifkan proses login yang aman menggunakan OTP yang dikirimkan melalui email khusus untuk Admin dan Superadmin.
 
 ### 📊 Dasbor & Analitik Real-time
 - **Statistik Langsung:** Pantau total tamu, yang sudah *check-in*, *check-out*, dan status RSVP secara *real-time*.
